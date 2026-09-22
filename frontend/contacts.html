@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Contacts</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <h2>Contacts Manager</h2>
+    <div class="topbar-right">
+      <span id="welcome-message"></span>
+      <button id="logout-button" class="button button-secondary">Log Out</button>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <div class="search-row">
+      <input type="text" id="search-input" placeholder="Search contacts..." />
+      <button id="add-contact-button" class="button button-primary">+ Add Contact</button>
+    </div>
+
+    <div id="add-contact-form" class="add-form" style="display: none;">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="new-firstName">First Name</label>
+          <input type="text" id="new-firstName" />
+        </div>
+        <div class="form-group">
+          <label for="new-lastName">Last Name</label>
+          <input type="text" id="new-lastName" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="new-cell">Phone</label>
+          <input type="text" id="new-cell" />
+        </div>
+        <div class="form-group">
+          <label for="new-email">Email</label>
+          <input type="text" id="new-email" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button id="save-contact-button" class="button button-primary">Save Contact</button>
+        <button id="cancel-add-button" class="button button-secondary">Cancel</button>
+      </div>
+    </div>
+
+    <div id="contacts-list"></div>
+  </main>
+
+  <script src="js/contacts.js"></script>
+</body>
+</html>
