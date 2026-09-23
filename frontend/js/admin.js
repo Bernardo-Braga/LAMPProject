@@ -55,19 +55,28 @@ function renderUsers(usersToShow) {
   });
 }
 
-renderUsers(users);
-
-const searchInput = document.getElementById("search-input");
-
-searchInput.addEventListener("input", function () {
+function refreshList() {
   const query = searchInput.value.toLowerCase();
-
   const filtered = users.filter(function (user) {
     const fullName = (user.firstName + " " + user.lastName).toLowerCase();
     return fullName.includes(query) || user.login.toLowerCase().includes(query);
   });
-
   renderUsers(filtered);
+}
+
+const searchInput = document.getElementById("search-input");
+
+renderUsers(users);
+
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    searchInput.value = "";
+    renderUsers(users);
+  }, 150);
+});
+
+searchInput.addEventListener("input", function () {
+  refreshList();
 });
 
 document.getElementById("logout-button").addEventListener("click", function () {
@@ -84,13 +93,13 @@ document.getElementById("users-list").addEventListener("click", function (event)
   if (event.target.classList.contains("toggle-disable-button")) {
     const user = users.find(function (u) { return u.id === clickedId; });
     user.isDisabled = !user.isDisabled;
-    renderUsers(users);
+    refreshList();
   }
 
   if (event.target.classList.contains("toggle-admin-button")) {
     const user = users.find(function (u) { return u.id === clickedId; });
     user.role = (user.role === "Admin") ? "User" : "Admin";
-    renderUsers(users);
+    refreshList();
   }
 
   if (event.target.classList.contains("change-password-button")) {
@@ -113,6 +122,7 @@ document.getElementById("save-password-button").addEventListener("click", functi
 
   console.log("Would update password for user id " + passwordTargetUserId + " to: " + newPassword);
 
+  refreshList();
   passwordForm.style.display = "none";
   document.getElementById("new-password").value = "";
 });

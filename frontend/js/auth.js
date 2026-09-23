@@ -25,7 +25,12 @@ if (loginForm) {
           sessionStorage.setItem("currentUser", JSON.stringify(result.data));
 
           setTimeout(function () {
-            window.location.href = "contacts.html";
+            // TEMPORARY: hardcoded admin check until Login.php returns a real Role field
+            if (login === "root") {
+              window.location.href = "admin.html";
+            } else {
+              window.location.href = "contacts.html";
+            }
           }, 1000);
         } else {
           messageBox.textContent = result.data.error;
