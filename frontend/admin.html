@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Contacts Manager</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <h2>Admin Panel</h2>
+    <div class="topbar-right">
+      <span id="welcome-message"></span>
+      <button id="logout-button" class="button button-secondary">Log Out</button>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <div class="search-row">
+      <input type="text" id="search-input" placeholder="Search users..." />
+    </div>
+
+    <div id="password-form" class="add-form" style="display: none;">
+      <div class="form-group">
+        <label for="new-password">New Password</label>
+        <input type="password" id="new-password" />
+      </div>
+      <div class="form-actions">
+        <button id="save-password-button" class="button button-primary">Save Password</button>
+        <button id="cancel-password-button" class="button button-secondary">Cancel</button>
+      </div>
+    </div>
+
+    <div id="users-list"></div>
+  </main>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>
