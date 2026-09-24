@@ -19,10 +19,15 @@ if (loginForm) {
       })
       .then(function (result) {
         if (result.status === 200) {
-          messageBox.textContent = "Login successful! Redirecting...";
-          messageBox.style.color = "green";
-
           sessionStorage.setItem("currentUser", JSON.stringify(result.data));
+
+          document.getElementById("login-card").innerHTML = `
+            <div class="success-state">
+              <div class="success-icon">&#10003;</div>
+              <h1>You're in!</h1>
+              <p class="subtitle">Redirecting to your contacts...</p>
+            </div>
+          `;
 
           setTimeout(function () {
             // TEMPORARY: hardcoded admin check until Login.php returns a real Role field
@@ -33,8 +38,14 @@ if (loginForm) {
             }
           }, 1000);
         } else {
-          messageBox.textContent = result.data.error;
-          messageBox.style.color = "red";
+          document.getElementById("login-card").innerHTML = `
+            <div class="error-state">
+              <div class="error-icon">&#10005;</div>
+              <h1>Login Failed</h1>
+              <p class="subtitle">${result.data.error}</p>
+              <button onclick="location.reload()" class="button button-primary">Try Again</button>
+            </div>
+          `;
         }
       });
   });
