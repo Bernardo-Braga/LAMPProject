@@ -8,12 +8,30 @@ if (!currentUser) {
 document.getElementById("welcome-message").textContent =
   "Welcome, " + currentUser.firstName;
 
-// Mock user data — stand-in until the real admin API endpoints exist
-let users = [
-  { id: 1, firstName: "Firstname", lastName: "Lastname", login: "admin", role: "Admin", isDisabled: false },
-  { id: 2, firstName: "Harry", lastName: "Potter", login: "HarryP", role: "User", isDisabled: false },
-  { id: 3, firstName: "Peter", lastName: "Parker", login: "Spiderman", role: "User", isDisabled: true }
-];
+const API_BASE = "http://137.184.210.119/api";
+let users = [];
+
+async function loadUsers() {
+  try {
+    const response = await fetch(`${API_BASE}/ListUsers.php?adminId=${currentUser.id}&term=`);
+    const data = await response.json();
+
+    users = data.map(function (user) {
+      return {
+        id: user.ID,
+        firstName: user.FirstName,
+        lastName: user.LastName,
+        login: user.Login,
+        role: user.Role,
+        isDisabled: Boolean(user.IsDisabled)
+      };
+    });
+
+    refreshList();
+  } catch (err) {
+    document.getElementById("users-list").innerHTML = "<p>Could not load users.</p>";
+  }
+}
 
 function renderUsers(usersToShow) {
   const listContainer = document.getElementById("users-list");
@@ -42,10 +60,10 @@ function renderUsers(usersToShow) {
         <p>${user.login}</p>
       </div>
       <div class="user-actions">
-        <button class="toggle-disable-button" data-id="${user.id}">
-          ${user.isDisabled ? "Enable" : "Disable"}
+        <button class="toggle-disable-button" data-id="${user.id}" ${user.isDisabled ? "disabled" : ""}>
+          ${user.isDisabled ? "Disabled" : "Disable"}
         </button>
-        <button class="toggle-admin-button" data-id="${user.id}">
+        <button class="toggle-admin-button" data-id="${user.id}" disabled>
           ${user.role === "Admin" ? "Demote" : "Promote to Admin"}
         </button>
         <button class="change-password-button" data-id="${user.id}">Change Password</button>
@@ -66,12 +84,12 @@ function refreshList() {
 
 const searchInput = document.getElementById("search-input");
 
-renderUsers(users);
+loadUsers();
 
 window.addEventListener("load", function () {
   setTimeout(function () {
     searchInput.value = "";
-    renderUsers(users);
+    refreshList();
   }, 150);
 });
 
@@ -87,19 +105,28 @@ document.getElementById("logout-button").addEventListener("click", function () {
 let passwordTargetUserId = null;
 const passwordForm = document.getElementById("password-form");
 
-document.getElementById("users-list").addEventListener("click", function (event) {
+document.getElementById("users-list").addEventListener("click", async function (event) {
   const clickedId = Number(event.target.getAttribute("data-id"));
 
   if (event.target.classList.contains("toggle-disable-button")) {
-    const user = users.find(function (u) { return u.id === clickedId; });
-    user.isDisabled = !user.isDisabled;
-    refreshList();
-  }
+    try {
+      const response = await fetch(`${API_BASE}/DisableUser.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ adminId: currentUser.id, targetUserId: clickedId })
+      });
 
-  if (event.target.classList.contains("toggle-admin-button")) {
-    const user = users.find(function (u) { return u.id === clickedId; });
-    user.role = (user.role === "Admin") ? "User" : "Admin";
-    refreshList();
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error(data.error);
+        return;
+      }
+
+      await loadUsers();
+    } catch (err) {
+      console.error("Could not disable user.");
+    }
   }
 
   if (event.target.classList.contains("change-password-button")) {
@@ -113,16 +140,44 @@ document.getElementById("cancel-password-button").addEventListener("click", func
   document.getElementById("new-password").value = "";
 });
 
-document.getElementById("save-password-button").addEventListener("click", function () {
+document.getElementById("save-password-button").addEventListener("click", async function () {
   const newPassword = document.getElementById("new-password").value;
+  const messageBox = document.getElementById("password-message");
 
   if (!newPassword) {
     return;
   }
 
-  console.log("Would update password for user id " + passwordTargetUserId + " to: " + newPassword);
+  try {
+    const response = await fetch(`${API_BASE}/ChangePassword.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        adminId: currentUser.id,
+        targetUserId: passwordTargetUserId,
+        newPassword: newPassword
+      })
+    });
 
-  refreshList();
-  passwordForm.style.display = "none";
-  document.getElementById("new-password").value = "";
+    const data = await response.json();
+
+    if (!response.ok) {
+      messageBox.textContent = data.error;
+      messageBox.className = "form-message form-message-error";
+      return;
+    }
+
+    messageBox.textContent = "Password updated!";
+    messageBox.className = "form-message form-message-success";
+
+    setTimeout(function () {
+      passwordForm.style.display = "none";
+      document.getElementById("new-password").value = "";
+      messageBox.textContent = "";
+      messageBox.className = "form-message";
+    }, 1200);
+  } catch (err) {
+    messageBox.textContent = "Could not change password.";
+    messageBox.className = "form-message form-message-error";
+  }
 });

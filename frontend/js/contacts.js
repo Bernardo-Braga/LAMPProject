@@ -9,12 +9,31 @@ if (!currentUser) {
 document.getElementById("welcome-message").textContent =
   "Welcome, " + currentUser.firstName;
 
-// Mock contact data — stand-in until the real API endpoint exists
-let contacts = [
-  { id: 1, firstName: "Ben", lastName: "Brown", cell: "(976) 395-9768", email: "bennieB@example.com" },
-  { id: 2, firstName: "Chloe", lastName: "Carter", cell: "(467) 864-7732", email: "ccgirlie@example.com" },
-  { id: 3, firstName: "Danny", lastName: "Evans", cell: "(348) 284-9733", email: "dantheman@example.com" }
-];
+const API_BASE = "http://137.184.210.119/api";
+let contacts = [];
+
+async function loadContacts(term = "") {
+  try {
+    const response = await fetch(`${API_BASE}/SearchContacts.php?userId=${currentUser.id}&term=${encodeURIComponent(term)}`);
+    const data = await response.json();
+
+    contacts = data.map(function (contact) {
+      return {
+        id: contact.ID,
+        firstName: contact.FirstName,
+        lastName: contact.LastName,
+        cell: contact.Cell,
+        email: contact.Email
+      };
+    });
+
+    renderContacts(contacts);
+  } catch (err) {
+    document.getElementById("contacts-list").innerHTML = "<p>Could not load contacts.</p>";
+  }
+}
+
+loadContacts();
 
 function renderContacts(contactsToShow) {
   const listContainer = document.getElementById("contacts-list");
@@ -41,8 +60,6 @@ function renderContacts(contactsToShow) {
     listContainer.appendChild(card);
   });
 }
-
-renderContacts(contacts);
 
 const searchInput = document.getElementById("search-input");
 
@@ -78,7 +95,7 @@ cancelAddButton.addEventListener("click", function () {
   addContactForm.style.display = "none";
 });
 
-saveContactButton.addEventListener("click", function () {
+saveContactButton.addEventListener("click", async function () {
   const firstName = document.getElementById("new-firstName").value;
   const lastName = document.getElementById("new-lastName").value;
   const cell = document.getElementById("new-cell").value;
@@ -90,27 +107,61 @@ saveContactButton.addEventListener("click", function () {
 
   if (editingContactId === null) {
     // Adding a new contact
-    const newContact = {
-      id: Date.now(),
-      firstName: firstName,
-      lastName: lastName,
-      cell: cell,
-      email: email
-    };
-    contacts.push(newContact);
+    try {
+      const response = await fetch(`${API_BASE}/AddContact.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: currentUser.id,
+          firstName: firstName,
+          lastName: lastName,
+          cell: cell,
+          email: email
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error(data.error);
+        return;
+      }
+
+      await loadContacts();
+    } catch (err) {
+      console.error("Could not add contact.");
+      return;
+    }
   } else {
     // Editing an existing contact
-    const contactToEdit = contacts.find(function (contact) {
-      return contact.id === editingContactId;
-    });
-    contactToEdit.firstName = firstName;
-    contactToEdit.lastName = lastName;
-    contactToEdit.cell = cell;
-    contactToEdit.email = email;
-    editingContactId = null;
-  }
+    try {
+      const response = await fetch(`${API_BASE}/EditContact.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: editingContactId,
+          userId: currentUser.id,
+          firstName: firstName,
+          lastName: lastName,
+          cell: cell,
+          email: email
+        })
+      });
 
-  renderContacts(contacts);
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error(data.error);
+        return;
+      }
+
+      editingContactId = null;
+      await loadContacts();
+    } catch (err) {
+      console.error("Could not update contact.");
+      return;
+    }
+  }
 
   document.getElementById("new-firstName").value = "";
   document.getElementById("new-lastName").value = "";
@@ -119,13 +170,29 @@ saveContactButton.addEventListener("click", function () {
   addContactForm.style.display = "none";
 });
 
-document.getElementById("contacts-list").addEventListener("click", function (event) {
+document.getElementById("contacts-list").addEventListener("click", async function (event) {
   if (event.target.classList.contains("delete-button")) {
     const idToDelete = Number(event.target.getAttribute("data-id"));
-    contacts = contacts.filter(function (contact) {
-      return contact.id !== idToDelete;
-    });
-    renderContacts(contacts);
+
+    try {
+      const response = await fetch(`${API_BASE}/DeleteContact.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: idToDelete, userId: currentUser.id })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error(data.error);
+        return;
+      }
+
+      await loadContacts();
+    } catch (err) {
+      console.error("Could not delete contact.");
+      return;
+    }
   }
 
   if (event.target.classList.contains("edit-button")) {
