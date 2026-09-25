@@ -150,7 +150,11 @@ saveContactButton.addEventListener("click", async function () {
   const cell = document.getElementById("new-cell").value;
   const email = document.getElementById("new-email").value;
 
+  const addMessageBox = document.getElementById("add-contact-message");
+  addMessageBox.textContent = "";
+
   if (!firstName || !lastName) {
+    addMessageBox.textContent = "First and last name are required.";
     return;
   }
 

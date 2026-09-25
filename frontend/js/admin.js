@@ -73,16 +73,58 @@ function renderUsers(usersToShow) {
   });
 }
 
+function showConfirm(message) {
+  return new Promise(function (resolve) {
+    const modal = document.getElementById("confirm-modal");
+    document.getElementById("confirm-message").textContent = message;
+    modal.style.display = "flex";
+
+    const yesButton = document.getElementById("confirm-yes-button");
+    const noButton = document.getElementById("confirm-no-button");
+
+    function onYes() { cleanup(true); }
+    function onNo() { cleanup(false); }
+
+    function cleanup(result) {
+      modal.style.display = "none";
+      yesButton.removeEventListener("click", onYes);
+      noButton.removeEventListener("click", onNo);
+      resolve(result);
+    }
+
+    yesButton.addEventListener("click", onYes);
+    noButton.addEventListener("click", onNo);
+  });
+}
+
 function refreshList() {
   const query = searchInput.value.toLowerCase();
-  const filtered = users.filter(function (user) {
+  let filtered = users.filter(function (user) {
     const fullName = (user.firstName + " " + user.lastName).toLowerCase();
     return fullName.includes(query) || user.login.toLowerCase().includes(query);
   });
+
+  const sortBy = sortSelect.value;
+
+  if (sortBy === "lastName") {
+    filtered.sort(function (a, b) {
+      return a.lastName.localeCompare(b.lastName);
+    });
+  } else if (sortBy === "firstName") {
+    filtered.sort(function (a, b) {
+      return a.firstName.localeCompare(b.firstName);
+    });
+  } else if (sortBy === "recent") {
+    filtered.sort(function (a, b) {
+      return b.id - a.id;
+    });
+  }
+
   renderUsers(filtered);
 }
 
 const searchInput = document.getElementById("search-input");
+const sortSelect = document.getElementById("sort-select");
 
 loadUsers();
 
@@ -94,6 +136,10 @@ window.addEventListener("load", function () {
 });
 
 searchInput.addEventListener("input", function () {
+  refreshList();
+});
+
+sortSelect.addEventListener("change", function () {
   refreshList();
 });
 
@@ -109,6 +155,11 @@ document.getElementById("users-list").addEventListener("click", async function (
   const clickedId = Number(event.target.getAttribute("data-id"));
 
   if (event.target.classList.contains("toggle-disable-button")) {
+    const confirmed = await showConfirm("Disable this user? They won't be able to log in, and this can't be undone from here.");
+    if (!confirmed) {
+      return;
+    }
+
     try {
       const response = await fetch(`${API_BASE}/DisableUser.php`, {
         method: "POST",

@@ -7,8 +7,8 @@
   <link rel="stylesheet" href="css/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
 </head>
 <body>
 
@@ -23,6 +23,11 @@
   <main class="page-content">
     <div class="search-row">
       <input type="text" id="search-input" placeholder="Search users..." autocomplete="off" />
+      <select id="sort-select" class="button button-secondary">
+        <option value="lastName">Last Name (A-Z)</option>
+        <option value="firstName">First Name (A-Z)</option>
+        <option value="recent">Recently Added</option>
+      </select>
     </div>
 
     <div id="password-form" class="add-form" style="display: none;">
@@ -39,6 +44,16 @@
 
     <div id="users-list"></div>
   </main>
+
+  <div id="confirm-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-box">
+      <p id="confirm-message"></p>
+      <div class="modal-actions">
+        <button id="confirm-yes-button" class="button button-primary">Disable</button>
+        <button id="confirm-no-button" class="button button-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <script src="js/admin.js"></script>
 </body>
