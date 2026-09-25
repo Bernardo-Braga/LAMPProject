@@ -12,6 +12,7 @@ const API_BASE = "http://137.184.210.119/api";
 let users = [];
 
 async function loadUsers() {
+  document.getElementById("users-list").innerHTML = "<p>Loading users...</p>";
   try {
     const response = await fetch(`${API_BASE}/ListUsers.php?adminId=${currentUser.id}&term=`);
     const data = await response.json();
@@ -37,6 +38,9 @@ function renderUsers(usersToShow) {
   const listContainer = document.getElementById("users-list");
   listContainer.innerHTML = "";
 
+  document.getElementById("user-count").textContent =
+    users.length + (users.length === 1 ? " user" : " users");
+
   if (usersToShow.length === 0) {
     listContainer.innerHTML = "<p>No users found.</p>";
     return;
@@ -47,6 +51,11 @@ function renderUsers(usersToShow) {
     card.className = "user-card";
 
     let badges = "";
+
+    const isSelf = user.id === currentUser.id;
+    if (isSelf) {
+      badges += `<span class="badge badge-admin">You</span>`;
+    }
     if (user.role === "Admin") {
       badges += `<span class="badge badge-admin">Admin</span>`;
     }
@@ -60,8 +69,8 @@ function renderUsers(usersToShow) {
         <p>${user.login}</p>
       </div>
       <div class="user-actions">
-        <button class="toggle-disable-button" data-id="${user.id}" ${user.isDisabled ? "disabled" : ""}>
-          ${user.isDisabled ? "Disabled" : "Disable"}
+        <button class="toggle-disable-button" data-id="${user.id}" ${(user.isDisabled || isSelf) ? "disabled" : ""}>
+          ${user.isDisabled ? "Disabled" : (isSelf ? "Can't disable yourself" : "Disable")}
         </button>
         <button class="toggle-admin-button" data-id="${user.id}" disabled>
           ${user.role === "Admin" ? "Demote" : "Promote to Admin"}
@@ -101,7 +110,9 @@ function refreshList() {
   const query = searchInput.value.toLowerCase();
   let filtered = users.filter(function (user) {
     const fullName = (user.firstName + " " + user.lastName).toLowerCase();
-    return fullName.includes(query) || user.login.toLowerCase().includes(query);
+    const matchesSearch = fullName.includes(query) || user.login.toLowerCase().includes(query);
+    const matchesRole = roleFilter.value === "all" || user.role === roleFilter.value;
+    return matchesSearch && matchesRole;
   });
 
   const sortBy = sortSelect.value;
@@ -125,6 +136,7 @@ function refreshList() {
 
 const searchInput = document.getElementById("search-input");
 const sortSelect = document.getElementById("sort-select");
+const roleFilter = document.getElementById("role-filter");
 
 loadUsers();
 
@@ -140,6 +152,10 @@ searchInput.addEventListener("input", function () {
 });
 
 sortSelect.addEventListener("change", function () {
+  refreshList();
+});
+
+roleFilter.addEventListener("change", function () {
   refreshList();
 });
 

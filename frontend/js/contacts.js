@@ -67,6 +67,7 @@ function showConfirm(message) {
 }
 
 async function loadContacts(term = "") {
+  document.getElementById("contacts-list").innerHTML = "<p>Loading contacts...</p>";
   try {
     const response = await fetch(`${API_BASE}/SearchContacts.php?userId=${currentUser.id}&term=${encodeURIComponent(term)}`);
     const data = await response.json();
@@ -92,6 +93,9 @@ loadContacts();
 function renderContacts(contactsToShow) {
   const listContainer = document.getElementById("contacts-list");
   listContainer.innerHTML = "";
+
+  document.getElementById("contact-count").textContent =
+    contacts.length + (contacts.length === 1 ? " contact" : " contacts");
 
   if (contactsToShow.length === 0) {
     listContainer.innerHTML = "<p>No contacts found.</p>";

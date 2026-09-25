@@ -30,6 +30,8 @@
       <button id="add-contact-button" class="button button-primary">+ Add Contact</button>
     </div>
 
+    <p id="contact-count" class="subtitle"></p>
+
     <div id="add-contact-form" class="add-form" style="display: none;">
       <div class="form-row">
         <div class="form-group">
@@ -72,5 +74,11 @@
   </div>
 
   <script src="js/contacts.js"></script>
+  <script>
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
+  </script>
 </body>
 </html>

@@ -28,7 +28,14 @@
         <option value="firstName">First Name (A-Z)</option>
         <option value="recent">Recently Added</option>
       </select>
+      <select id="role-filter" class="button button-secondary">
+        <option value="all">All Roles</option>
+        <option value="Admin">Admins Only</option>
+        <option value="User">Regular Users</option>
+      </select>
     </div>
+
+    <p id="user-count" class="subtitle"></p>
 
     <div id="password-form" class="add-form" style="display: none;">
       <div class="form-group">
@@ -56,5 +63,11 @@
   </div>
 
   <script src="js/admin.js"></script>
+  <script>
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
+  </script>
 </body>
 </html>

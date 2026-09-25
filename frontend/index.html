@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
+    <button id="theme-toggle" class="theme-toggle">🌙</button>
     <div class="center-container">
         <div class="brand">
           <h1 class="brand-title">Contacts Manager</h1>
@@ -39,5 +40,28 @@
         </div>
     </div>
     <script src="js/auth.js"></script>
+    <script>
+        const themeToggle = document.getElementById("theme-toggle");
+        const savedTheme = localStorage.getItem("theme");
+
+        if (savedTheme === "dark") {
+            document.documentElement.setAttribute("data-theme", "dark");
+            themeToggle.textContent = "☀️";
+        }
+
+        themeToggle.addEventListener("click", function () {
+            const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+            if (isDark) {
+            document.documentElement.removeAttribute("data-theme");
+            localStorage.setItem("theme", "light");
+            themeToggle.textContent = "🌙";
+            } else {
+            document.documentElement.setAttribute("data-theme", "dark");
+            localStorage.setItem("theme", "dark");
+            themeToggle.textContent = "☀️";
+            }
+        });
+    </script>
 </body>
 </html>
