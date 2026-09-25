@@ -5,32 +5,78 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign In - Contacts Manager</title>
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
 </head>
 <body>
+    <button id="theme-toggle" class="theme-toggle">🌙</button>
     <div class="center-container">
-    <div class="card">
-        <h1>Sign In</h1>
-        <p class="subtitle">Welcome back.</p>
-
-        <form id="login-form">
-        <div class="form-group">
-            <label for="login">Username</label>
-            <input type="text" id="login" name="login" />
+        <div class="brand">
+          <h1 class="brand-title">Contacts Manager</h1>
+          <p class="brand-tagline">Your contacts, all in one place.</p>
         </div>
+        <div class="card" id="login-card">
+            <h1>Sign In</h1>
+            <p class="subtitle">Welcome back.</p>
 
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" />
+            <form id="login-form">
+            <div class="form-group">
+                <label for="login">Username</label>
+                <input type="text" id="login" name="login" />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-wrapper">
+                <input type="password" id="password" name="password" />
+                <button type="button" id="toggle-password" class="toggle-password-btn">Show</button>
+                </div>
+            </div>
+
+            <div id="form-message"></div>
+
+            <button type="submit" class="button button-primary">Sign In</button>
+            </form>
+
+            <p><a href="register.html">Don't have an account? Register here</a></p>
         </div>
-
-        <div id="form-message"></div>
-
-        <button type="submit" class="button button-primary">Sign In</button>
-        </form>
-
-        <p><a href="index.html">Back</a></p>
-    </div>
     </div>
     <script src="js/auth.js"></script>
+    <script>
+        const themeToggle = document.getElementById("theme-toggle");
+        const savedTheme = localStorage.getItem("theme");
+
+        if (savedTheme === "dark") {
+            document.documentElement.setAttribute("data-theme", "dark");
+            themeToggle.textContent = "☀️";
+        }
+
+        themeToggle.addEventListener("click", function () {
+            const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+            if (isDark) {
+            document.documentElement.removeAttribute("data-theme");
+            localStorage.setItem("theme", "light");
+            themeToggle.textContent = "🌙";
+            } else {
+            document.documentElement.setAttribute("data-theme", "dark");
+            localStorage.setItem("theme", "dark");
+            themeToggle.textContent = "☀️";
+            }
+        });
+    </script>
+
+    <script>
+        const togglePassword = document.getElementById("toggle-password");
+        const passwordInput = document.getElementById("password");
+
+        togglePassword.addEventListener("click", function () {
+            const isPassword = passwordInput.type === "password";
+            passwordInput.type = isPassword ? "text" : "password";
+            togglePassword.textContent = isPassword ? "Hide" : "Show";
+        });
+    </script>
 </body>
 </html>

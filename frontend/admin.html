@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Contacts Manager</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">  
+</head>
+<body>
+
+  <header class="topbar">
+    <h2 class="topbar-title">Admin Panel</h2>
+    <div class="topbar-right">
+      <span id="welcome-message"></span>
+      <button id="logout-button" class="button button-secondary">Log Out</button>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <div class="search-row">
+      <input type="text" id="search-input" placeholder="Search users..." autocomplete="off" />
+      <select id="sort-select" class="button button-secondary">
+        <option value="lastName">Last Name (A-Z)</option>
+        <option value="firstName">First Name (A-Z)</option>
+        <option value="recent">Recently Added</option>
+      </select>
+      <select id="role-filter" class="button button-secondary">
+        <option value="all">All Roles</option>
+        <option value="Admin">Admins Only</option>
+        <option value="User">Regular Users</option>
+      </select>
+    </div>
+
+    <p id="user-count" class="subtitle"></p>
+
+    <div id="password-form" class="add-form" style="display: none;">
+      <div class="form-group">
+        <label for="new-password">New Password</label>
+        <input type="password" id="new-password" />
+      </div>
+      <div id="password-message" class="form-message" role="alert" aria-live="polite"></div>
+      <div class="form-actions">
+        <button id="save-password-button" class="button button-primary">Save Password</button>
+        <button id="cancel-password-button" class="button button-secondary">Cancel</button>
+      </div>
+    </div>
+
+    <div id="users-list"></div>
+  </main>
+
+  <div id="confirm-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-box">
+      <p id="confirm-message"></p>
+      <div class="modal-actions">
+        <button id="confirm-yes-button" class="button button-primary">Disable</button>
+        <button id="confirm-no-button" class="button button-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
+  </script>
+</body>
+</html>
