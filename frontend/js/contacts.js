@@ -12,6 +12,21 @@ document.getElementById("welcome-message").textContent =
 const API_BASE = "http://137.184.210.119/api";
 let contacts = [];
 
+let favorites = JSON.parse(localStorage.getItem("favorites_" + currentUser.id) || "[]");
+
+function isFavorite(id) {
+  return favorites.includes(id);
+}
+
+function toggleFavorite(id) {
+  if (favorites.includes(id)) {
+    favorites = favorites.filter(function (favId) { return favId !== id; });
+  } else {
+    favorites.push(id);
+  }
+  localStorage.setItem("favorites_" + currentUser.id, JSON.stringify(favorites));
+}
+
 const searchInput = document.getElementById("search-input");
 const sortSelect = document.getElementById("sort-select");
 
@@ -38,6 +53,10 @@ function getDisplayedContacts() {
       return b.id - a.id;
     });
   }
+
+    filtered.sort(function (a, b) {
+      return (isFavorite(b.id) ? 1 : 0) - (isFavorite(a.id) ? 1 : 0);
+    });
 
   return filtered;
 }
@@ -111,6 +130,7 @@ function renderContacts(contactsToShow) {
         <p>${contact.cell} &middot; ${contact.email}</p>
       </div>
       <div class="contact-actions">
+        <button class="star-button ${isFavorite(contact.id) ? "favorited" : ""}" data-id="${contact.id}">★</button>
         <button class="edit-button" data-id="${contact.id}">Edit</button>
         <button class="delete-button" data-id="${contact.id}">Delete</button>
       </div>
@@ -228,6 +248,12 @@ saveContactButton.addEventListener("click", async function () {
 });
 
 document.getElementById("contacts-list").addEventListener("click", async function (event) {
+  if (event.target.classList.contains("star-button")) {
+    const idToToggle = Number(event.target.getAttribute("data-id"));
+    toggleFavorite(idToToggle);
+    renderContacts(getDisplayedContacts());
+  }
+  
   if (event.target.classList.contains("delete-button")) {
     const idToDelete = Number(event.target.getAttribute("data-id"));
 

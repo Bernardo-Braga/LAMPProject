@@ -1,6 +1,6 @@
 :root {
-  --color-primary: #2563eb;
-  --color-primary-dark: #1d4ed8;
+  --color-primary: #ec4899;
+  --color-primary-dark: #7f1d1d;
   --color-bg: #f1f5f9;
   --color-card: #ffffff;
   --color-text: #1e293b;
@@ -61,7 +61,7 @@ body {
   font-weight: 900;
   letter-spacing: -0.02em;
   margin: 0 0 4px;
-  background: linear-gradient(270deg, #2563eb, #7c3aed, #ec4899, #2563eb);
+  background: linear-gradient(270deg, #ec4899, #7f1d1d, #ec4899);
   background-size: 600% 600%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -124,7 +124,7 @@ h1 {
 }
 
 .button-primary {
-  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  background: linear-gradient(135deg, #ec4899, #7f1d1d);
   color: white;
   transition: filter 0.15s ease, transform 0.05s ease;
 }
@@ -168,7 +168,7 @@ h1 {
 .form-group input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.15);
 }
 
 #form-message {
@@ -220,7 +220,7 @@ h1 {
 .search-row input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.15);
 }
 
 .contact-card,
@@ -300,8 +300,8 @@ h1 {
 }
 
 .badge-admin {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: #fce7f3;
+  color: #7f1d1d;
 }
 
 .badge-disabled {
@@ -357,7 +357,7 @@ h1 {
   font-weight: 900;
   letter-spacing: -0.02em;
   margin: 0;
-  background: linear-gradient(270deg, #2563eb, #7c3aed, #ec4899, #2563eb);
+  background: linear-gradient(270deg, #ec4899, #7f1d1d, #ec4899);
   background-size: 600% 600%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -420,4 +420,40 @@ h1 {
 
 .card p a:visited {
   color: var(--color-primary);
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  padding-right: 60px;
+}
+
+.toggle-password-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--color-primary);
+  padding: 4px;
+}
+
+.star-button {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: var(--color-border);
+  padding: 7px 10px;
+}
+
+.star-button.favorited {
+  color: #f59e0b;
 }
