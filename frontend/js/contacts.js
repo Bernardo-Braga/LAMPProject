@@ -12,6 +12,60 @@ document.getElementById("welcome-message").textContent =
 const API_BASE = "http://137.184.210.119/api";
 let contacts = [];
 
+const searchInput = document.getElementById("search-input");
+const sortSelect = document.getElementById("sort-select");
+
+function getDisplayedContacts() {
+  const query = searchInput.value.toLowerCase();
+
+  let filtered = contacts.filter(function (contact) {
+    const fullName = (contact.firstName + " " + contact.lastName).toLowerCase();
+    return fullName.includes(query);
+  });
+
+  const sortBy = sortSelect.value;
+
+  if (sortBy === "lastName") {
+    filtered.sort(function (a, b) {
+      return a.lastName.localeCompare(b.lastName);
+    });
+  } else if (sortBy === "firstName") {
+    filtered.sort(function (a, b) {
+      return a.firstName.localeCompare(b.firstName);
+    });
+  } else if (sortBy === "recent") {
+    filtered.sort(function (a, b) {
+      return b.id - a.id;
+    });
+  }
+
+  return filtered;
+}
+
+function showConfirm(message) {
+  return new Promise(function (resolve) {
+    const modal = document.getElementById("confirm-modal");
+    document.getElementById("confirm-message").textContent = message;
+    modal.style.display = "flex";
+
+    const yesButton = document.getElementById("confirm-yes-button");
+    const noButton = document.getElementById("confirm-no-button");
+
+    function onYes() { cleanup(true); }
+    function onNo() { cleanup(false); }
+
+    function cleanup(result) {
+      modal.style.display = "none";
+      yesButton.removeEventListener("click", onYes);
+      noButton.removeEventListener("click", onNo);
+      resolve(result);
+    }
+
+    yesButton.addEventListener("click", onYes);
+    noButton.addEventListener("click", onNo);
+  });
+}
+
 async function loadContacts(term = "") {
   try {
     const response = await fetch(`${API_BASE}/SearchContacts.php?userId=${currentUser.id}&term=${encodeURIComponent(term)}`);
@@ -27,7 +81,7 @@ async function loadContacts(term = "") {
       };
     });
 
-    renderContacts(contacts);
+    renderContacts(getDisplayedContacts());
   } catch (err) {
     document.getElementById("contacts-list").innerHTML = "<p>Could not load contacts.</p>";
   }
@@ -61,17 +115,12 @@ function renderContacts(contactsToShow) {
   });
 }
 
-const searchInput = document.getElementById("search-input");
-
 searchInput.addEventListener("input", function () {
-  const query = searchInput.value.toLowerCase();
+  renderContacts(getDisplayedContacts());
+});
 
-  const filtered = contacts.filter(function (contact) {
-    const fullName = (contact.firstName + " " + contact.lastName).toLowerCase();
-    return fullName.includes(query);
-  });
-
-  renderContacts(filtered);
+sortSelect.addEventListener("change", function () {
+  renderContacts(getDisplayedContacts());
 });
 
 document.getElementById("logout-button").addEventListener("click", function () {
@@ -173,6 +222,11 @@ saveContactButton.addEventListener("click", async function () {
 document.getElementById("contacts-list").addEventListener("click", async function (event) {
   if (event.target.classList.contains("delete-button")) {
     const idToDelete = Number(event.target.getAttribute("data-id"));
+
+    const confirmed = await showConfirm("Delete this contact? This can't be undone.");
+    if (!confirmed) {
+      return;
+    }
 
     try {
       const response = await fetch(`${API_BASE}/DeleteContact.php`, {

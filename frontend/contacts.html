@@ -7,12 +7,12 @@
   <link rel="stylesheet" href="css/style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
   <header class="topbar">
-    <h2>Contacts Manager</h2>
+    <h2 class="topbar-title">Contacts Manager</h2>
     <div class="topbar-right">
       <span id="welcome-message"></span>
       <button id="logout-button" class="button button-secondary">Log Out</button>
@@ -22,6 +22,11 @@
   <main class="page-content">
     <div class="search-row">
       <input type="text" id="search-input" placeholder="Search contacts..." />
+      <select id="sort-select" class="button button-secondary">
+        <option value="lastName">Last Name (A-Z)</option>
+        <option value="firstName">First Name (A-Z)</option>
+        <option value="recent">Recently Added</option>
+      </select>
       <button id="add-contact-button" class="button button-primary">+ Add Contact</button>
     </div>
 
@@ -54,6 +59,16 @@
 
     <div id="contacts-list"></div>
   </main>
+
+  <div id="confirm-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-box">
+      <p id="confirm-message"></p>
+      <div class="modal-actions">
+        <button id="confirm-yes-button" class="button button-primary">Delete</button>
+        <button id="confirm-no-button" class="button button-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <script src="js/contacts.js"></script>
 </body>
