@@ -1,33 +1,23 @@
 <?php
-require_once "db.php";
+require_once "common.php";
+requireMethod("GET");
+$admin = requireAdmin(); // checked from the session, not from an adminId sent by the browser
 
-$adminId = $_GET["adminId"] ?? null;
-$term = $_GET["term"] ?? "";
-
-if (empty($adminId)) {
-    http_response_code(400);
-    echo json_encode(["error" => "Missing adminId"]);
-    exit();
-}
+$term = inputText("term");
 
 try {
-    $adminCheck = $pdo->prepare("SELECT Role FROM Users WHERE ID = ?");
-    $adminCheck->execute([$adminId]);
-    $admin = $adminCheck->fetch();
-
-    if (!$admin || $admin["Role"] !== "Admin") {
-        http_response_code(403);
-        echo json_encode(["error" => "Admin access required"]);
-        exit();
-    }
+    // Extra columns for the admin page: status, lockout, last sign-in, number of contacts.
+    $columns = "ID, FirstName, LastName, Login, Role, IsDisabled, MustChangePassword, LockedUntil,
+        (LockedUntil IS NOT NULL AND LockedUntil > NOW()) AS IsLocked, LastLoginAt, DateCreated,
+        (SELECT COUNT(*) FROM Contacts c WHERE c.UserID = Users.ID) AS ContactCount";
 
     if ($term !== "") {
-        $like = "%" . $term . "%";
-        $stmt = $pdo->prepare("SELECT ID, FirstName, LastName, Login, Role, IsDisabled FROM Users
+        $like = likePattern($term);
+        $stmt = $pdo->prepare("SELECT $columns FROM Users
             WHERE FirstName LIKE ? OR LastName LIKE ? OR Login LIKE ?");
         $stmt->execute([$like, $like, $like]);
     } else {
-        $stmt = $pdo->prepare("SELECT ID, FirstName, LastName, Login, Role, IsDisabled FROM Users");
+        $stmt = $pdo->prepare("SELECT $columns FROM Users");
         $stmt->execute();
     }
 
