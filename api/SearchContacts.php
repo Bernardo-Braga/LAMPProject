@@ -1,27 +1,42 @@
 <?php
-require_once "db.php";
+require_once "contact_helpers.php";
+requireMethod("GET");
+$user = requireLogin();
+$userId = (int)$user["ID"];
 
-$userId = $_GET["userId"] ?? null;
-$term = $_GET["term"] ?? "";
-
-if (empty($userId)) {
-    http_response_code(400);
-    echo json_encode(["error" => "Missing userId"]);
-    exit();
-}
+$term = inputText("term");
+$scope = inputText("scope"); // all (default) = mine + shared with me, mine, shared
 
 try {
-    if ($term !== "") {
-        $like = "%" . $term . "%";
-        $stmt = $pdo->prepare("SELECT ID, FirstName, LastName, Cell, Email FROM Contacts
-            WHERE UserID = ? AND (FirstName LIKE ? OR LastName LIKE ? OR Cell LIKE ? OR Email LIKE ?)");
-        $stmt->execute([$userId, $like, $like, $like, $like]);
-    } else {
-        $stmt = $pdo->prepare("SELECT ID, FirstName, LastName, Cell, Email FROM Contacts WHERE UserID = ?");
-        $stmt->execute([$userId]);
+    $where = match ($scope) {
+        "mine" => "c.UserID = ?",
+        "shared" => "s.SharedWithUserID IS NOT NULL",
+        default => "(c.UserID = ? OR s.SharedWithUserID IS NOT NULL)",
+    };
+    $params = [$userId, $userId];
+    if ($scope !== "shared") {
+        $params[] = $userId;
     }
 
-    $contacts = $stmt->fetchAll();
+    if ($term !== "") {
+        $like = likePattern($term);
+        $where .= " AND (c.FirstName LIKE ? OR c.LastName LIKE ? OR c.Cell LIKE ? OR c.Email LIKE ?
+                         OR c.Company LIKE ? OR c.JobTitle LIKE ? OR CONCAT(c.FirstName, ' ', c.LastName) LIKE ?)";
+        array_push($params, $like, $like, $like, $like, $like, $like, $like);
+    }
+
+    $stmt = $pdo->prepare(CONTACT_SELECT . " WHERE $where ORDER BY c.LastName, c.FirstName");
+    $stmt->execute($params);
+    $rows = $stmt->fetchAll();
+
+    $ids = array_map(function ($r) { return (int)$r["ID"]; }, $rows);
+    $tags = tagsForContacts($ids);
+    $shareCounts = shareCountsForContacts($ids);
+
+    $contacts = [];
+    foreach ($rows as $row) {
+        $contacts[] = contactJson($row, $userId, $tags[(int)$row["ID"]] ?? [], $shareCounts[(int)$row["ID"]] ?? 0);
+    }
     http_response_code(200);
     echo json_encode($contacts);
 } catch (PDOException $e) {

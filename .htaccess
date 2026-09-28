@@ -1,0 +1,27 @@
+# Optional extra hardening. The site works without this file (Apache only reads it when
+# the site has "AllowOverride All"). With it, Apache also refuses to serve:
+#   - the .git folder and other dotfiles
+#   - database/ and tests/ (command-line scripts), SQL files and editor backups
+#   - api/db.php-style include files that aren't endpoints
+Options -Indexes
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "same-origin"
+</IfModule>
+
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+RedirectMatch 404 /\.git
+
+<FilesMatch "(\.(sql|bak|orig|save|swp|log)|~)$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "^(db|db\.example|common|contact_helpers)\.php$">
+    Require all denied
+</FilesMatch>
+
+RedirectMatch 404 ^/(database|tests)(/|$)
