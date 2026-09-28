@@ -3,10 +3,13 @@ const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
 
 if (!currentUser) {
   window.location.href = "login.html";
+} else if (currentUser.role !== "Admin") {
+  window.location.href = "dashboard.html"; // the server also refuses admin requests from non-admins
 }
 
 document.getElementById("welcome-message").textContent =
   "Welcome, " + currentUser.firstName;
+renderNav("admin");
 
 const API_BASE = "/api";
 let users = [];
@@ -14,8 +17,9 @@ let users = [];
 async function loadUsers() {
   document.getElementById("users-list").innerHTML = "<p>Loading users...</p>";
   try {
-    const response = await fetch(`${API_BASE}/ListUsers.php?adminId=${currentUser.id}&term=`);
-    const data = await response.json();
+    // The server checks that the signed-in user is an admin; no adminId is sent.
+    const result = await apiRequest("ListUsers.php?term=");
+    const data = result.data;
 
     users = data.map(function (user) {
       return {
@@ -24,7 +28,11 @@ async function loadUsers() {
         lastName: user.LastName,
         login: user.Login,
         role: user.Role,
-        isDisabled: Boolean(user.IsDisabled)
+        isDisabled: Boolean(Number(user.IsDisabled)),
+        isLocked: Boolean(Number(user.IsLocked)),
+        mustChangePassword: Boolean(Number(user.MustChangePassword)),
+        lastLoginAt: user.LastLoginAt,
+        contactCount: Number(user.ContactCount)
       };
     });
 
@@ -62,27 +70,38 @@ function renderUsers(usersToShow) {
     if (user.isDisabled) {
       badges += `<span class="badge badge-disabled">Disabled</span>`;
     }
+    if (user.isLocked) {
+      badges += `<span class="badge badge-warning">Locked</span>`;
+    }
+    if (user.mustChangePassword) {
+      badges += `<span class="badge badge-warning">Must change password</span>`;
+    }
+
+    const lastSeen = user.lastLoginAt ? "last sign-in " + timeAgo(user.lastLoginAt) : "never signed in";
 
     card.innerHTML = `
       <div class="user-info">
-        <h3>${user.firstName} ${user.lastName} ${badges}</h3>
-        <p>${user.login}</p>
+        <h3>${escapeHtml(user.firstName)} ${escapeHtml(user.lastName)} ${badges}</h3>
+        <p>${escapeHtml(user.login)} &middot; ${user.contactCount} contact(s) &middot; ${lastSeen}</p>
       </div>
       <div class="user-actions">
-        <button class="toggle-disable-button" data-id="${user.id}" ${(user.isDisabled || isSelf) ? "disabled" : ""}>
-          ${user.isDisabled ? "Disabled" : (isSelf ? "Can't disable yourself" : "Disable")}
+        <button class="toggle-disable-button" data-id="${user.id}" ${isSelf ? "disabled" : ""}>
+          ${isSelf ? "Can't disable yourself" : (user.isDisabled ? "Enable" : "Disable")}
         </button>
-        <button class="toggle-admin-button" data-id="${user.id}" disabled>
+        <button class="toggle-admin-button" data-id="${user.id}" ${isSelf ? "disabled" : ""}>
           ${user.role === "Admin" ? "Demote" : "Promote to Admin"}
         </button>
         <button class="change-password-button" data-id="${user.id}">Change Password</button>
+        ${user.isLocked ? `<button class="unlock-button" data-id="${user.id}">Unlock</button>` : ""}
+        ${isSelf ? "" : `<button class="signout-user-button" data-id="${user.id}">Sign Out</button>`}
+        ${isSelf ? "" : `<button class="delete-user-button" data-id="${user.id}">Delete</button>`}
       </div>
     `;
     listContainer.appendChild(card);
   });
 }
 
-function showConfirm(message) {
+function showConfirm(message, confirmLabel) {
   return new Promise(function (resolve) {
     const modal = document.getElementById("confirm-modal");
     document.getElementById("confirm-message").textContent = message;
@@ -90,6 +109,7 @@ function showConfirm(message) {
 
     const yesButton = document.getElementById("confirm-yes-button");
     const noButton = document.getElementById("confirm-no-button");
+    yesButton.textContent = confirmLabel || "Disable";
 
     function onYes() { cleanup(true); }
     function onNo() { cleanup(false); }
@@ -112,7 +132,12 @@ function refreshList() {
     const fullName = (user.firstName + " " + user.lastName).toLowerCase();
     const matchesSearch = fullName.includes(query) || user.login.toLowerCase().includes(query);
     const matchesRole = roleFilter.value === "all" || user.role === roleFilter.value;
-    return matchesSearch && matchesRole;
+    const status = statusFilter.value;
+    const matchesStatus = status === "all" ||
+      (status === "active" && !user.isDisabled) ||
+      (status === "disabled" && user.isDisabled) ||
+      (status === "locked" && user.isLocked);
+    return matchesSearch && matchesRole && matchesStatus;
   });
 
   const sortBy = sortSelect.value;
@@ -137,6 +162,7 @@ function refreshList() {
 const searchInput = document.getElementById("search-input");
 const sortSelect = document.getElementById("sort-select");
 const roleFilter = document.getElementById("role-filter");
+const statusFilter = document.getElementById("status-filter");
 
 loadUsers();
 
@@ -159,9 +185,12 @@ roleFilter.addEventListener("change", function () {
   refreshList();
 });
 
+statusFilter.addEventListener("change", function () {
+  refreshList();
+});
+
 document.getElementById("logout-button").addEventListener("click", function () {
-  sessionStorage.removeItem("currentUser");
-  window.location.href = "login.html";
+  logOut(); // ends the server session too (js/common.js)
 });
 
 let passwordTargetUserId = null;
@@ -170,23 +199,25 @@ const passwordForm = document.getElementById("password-form");
 document.getElementById("users-list").addEventListener("click", async function (event) {
   const clickedId = Number(event.target.getAttribute("data-id"));
 
+  const clickedUser = users.find(function (u) { return u.id === clickedId; });
+
   if (event.target.classList.contains("toggle-disable-button")) {
-    const confirmed = await showConfirm("Disable this user? They won't be able to log in, and this can't be undone from here.");
-    if (!confirmed) {
-      return;
+    // Disabled accounts can now be re-enabled, so only disabling asks for confirmation.
+    if (!clickedUser.isDisabled) {
+      const confirmed = await showConfirm("Disable this user? They'll be signed out right away and won't be able to log in until re-enabled.");
+      if (!confirmed) {
+        return;
+      }
     }
 
     try {
-      const response = await fetch(`${API_BASE}/DisableUser.php`, {
+      const result = await apiRequest("DisableUser.php", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ adminId: currentUser.id, targetUserId: clickedId })
+        body: { targetUserId: clickedId, disabled: !clickedUser.isDisabled }
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error(data.error);
+      if (!result.ok) {
+        showToast(errorMessage(result), "error");
         return;
       }
 
@@ -196,8 +227,36 @@ document.getElementById("users-list").addEventListener("click", async function (
     }
   }
 
+  if (event.target.classList.contains("toggle-admin-button")) {
+    const promote = clickedUser.role !== "Admin";
+    const confirmed = await showConfirm(
+      promote ? "Make this user an admin? Admins can manage every account." : "Remove this user's admin rights?",
+      promote ? "Promote" : "Demote"
+    );
+    if (confirmed) {
+      await runAdminAction("SetUserRole.php", { targetUserId: clickedId, role: promote ? "Admin" : "User" });
+    }
+  }
+
+  if (event.target.classList.contains("unlock-button")) {
+    await runAdminAction("UnlockUser.php", { targetUserId: clickedId });
+  }
+
+  if (event.target.classList.contains("signout-user-button")) {
+    if (await showConfirm("Sign this user out on every device?", "Sign Out")) {
+      await runAdminAction("LogoutUser.php", { targetUserId: clickedId });
+    }
+  }
+
+  if (event.target.classList.contains("delete-user-button")) {
+    if (await showConfirm("Permanently delete " + clickedUser.login + " and all their contacts? This can't be undone.", "Delete")) {
+      await runAdminAction("DeleteUser.php", { targetUserId: clickedId });
+    }
+  }
+
   if (event.target.classList.contains("change-password-button")) {
     passwordTargetUserId = clickedId;
+    document.getElementById("password-message").textContent = "";
     passwordForm.style.display = "block";
   }
 });
@@ -211,31 +270,36 @@ document.getElementById("save-password-button").addEventListener("click", async 
   const newPassword = document.getElementById("new-password").value;
   const messageBox = document.getElementById("password-message");
 
-  if (!newPassword) {
-    return;
-  }
-
   try {
-    const response = await fetch(`${API_BASE}/ChangePassword.php`, {
+    // Leaving the password empty makes the server generate a temporary one.
+    const result = await apiRequest("ChangePassword.php", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        adminId: currentUser.id,
+      body: {
         targetUserId: passwordTargetUserId,
-        newPassword: newPassword
-      })
+        newPassword: newPassword,
+        mustChangePassword: document.getElementById("must-change-password").checked
+      }
     });
+    const data = result.data;
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      messageBox.textContent = data.error;
+    if (!result.ok) {
+      messageBox.textContent = errorMessage(result);
       messageBox.className = "form-message form-message-error";
+      return;
+    }
+
+    if (data.temporaryPassword) {
+      // Shown once: the admin passes it on to the user.
+      messageBox.textContent = "Temporary password: " + data.temporaryPassword + " (copy it now, it won't be shown again)";
+      messageBox.className = "form-message form-message-success";
+      document.getElementById("new-password").value = "";
+      await loadUsers();
       return;
     }
 
     messageBox.textContent = "Password updated!";
     messageBox.className = "form-message form-message-success";
+    await loadUsers();
 
     setTimeout(function () {
       passwordForm.style.display = "none";
@@ -248,3 +312,16 @@ document.getElementById("save-password-button").addEventListener("click", async 
     messageBox.className = "form-message form-message-error";
   }
 });
+
+
+// Send one admin action (promote, unlock, sign out, delete...) and refresh the list.
+async function runAdminAction(endpoint, body) {
+  const result = await apiRequest(endpoint, { method: "POST", body: body });
+  if (!result.ok) {
+    showToast(errorMessage(result), "error");
+    return false;
+  }
+  showToast("Done");
+  await loadUsers();
+  return true;
+}

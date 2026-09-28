@@ -21,6 +21,13 @@
   </header>
 
   <main class="page-content">
+    <div class="tabs" role="tablist" aria-label="Admin sections">
+      <button type="button" role="tab" data-tab="users" aria-selected="true">Users</button>
+      <button type="button" role="tab" data-tab="stats" aria-selected="false">Statistics</button>
+      <button type="button" role="tab" data-tab="audit" aria-selected="false">Audit log</button>
+    </div>
+
+    <section id="panel-users">
     <div class="search-row">
       <input type="text" id="search-input" placeholder="Search users..." autocomplete="off" />
       <select id="sort-select" class="button button-secondary">
@@ -33,6 +40,13 @@
         <option value="Admin">Admins Only</option>
         <option value="User">Regular Users</option>
       </select>
+      <select id="status-filter" class="button button-secondary">
+        <option value="all">Any Status</option>
+        <option value="active">Active</option>
+        <option value="disabled">Disabled</option>
+        <option value="locked">Locked Out</option>
+      </select>
+      <button id="new-user-button" class="button button-primary">+ New User</button>
     </div>
 
     <p id="user-count" class="subtitle"></p>
@@ -40,8 +54,9 @@
     <div id="password-form" class="add-form" style="display: none;">
       <div class="form-group">
         <label for="new-password">New Password</label>
-        <input type="password" id="new-password" />
+        <input type="password" id="new-password" placeholder="Leave empty to generate a temporary password" />
       </div>
+      <label class="checkbox"><input type="checkbox" id="must-change-password" checked /> Ask them to choose a new password at next sign-in</label>
       <div id="password-message" class="form-message" role="alert" aria-live="polite"></div>
       <div class="form-actions">
         <button id="save-password-button" class="button button-primary">Save Password</button>
@@ -50,7 +65,62 @@
     </div>
 
     <div id="users-list"></div>
+    </section>
+
+    <section id="panel-stats" style="display: none;">
+      <div id="stat-tiles" class="stats"></div>
+      <div class="chart-grid">
+        <div class="chart-card"><h3>Sign-ins, last 14 days</h3><div id="chart-logins"></div></div>
+        <div class="chart-card"><h3>New accounts, last 30 days</h3><div id="chart-signups"></div></div>
+        <div class="chart-card"><h3>Contacts added, last 30 days</h3><div id="chart-contacts"></div></div>
+        <div class="chart-card"><h3>Most contacts</h3><div id="chart-top-users"></div></div>
+      </div>
+      <div class="chart-card"><h3>Most common actions, last 7 days</h3><div id="chart-actions"></div></div>
+    </section>
+
+    <section id="panel-audit" style="display: none;">
+      <div class="search-row">
+        <input type="text" id="audit-search" placeholder="Search text, username or IP..." autocomplete="off" />
+        <select id="audit-action" class="button button-secondary">
+          <option value="">All Actions</option>
+        </select>
+      </div>
+      <div id="audit-list" class="audit-list"></div>
+      <div class="pagination">
+        <button id="audit-prev" class="button button-secondary button-small">&larr; Newer</button>
+        <span id="audit-page"></span>
+        <button id="audit-next" class="button button-secondary button-small">Older &rarr;</button>
+      </div>
+    </section>
   </main>
+
+  <!-- Create a user or admin -->
+  <div id="new-user-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-box modal-wide">
+      <h3>New user</h3>
+      <div class="form-row">
+        <div class="form-group"><label for="nu-firstName">First Name</label><input type="text" id="nu-firstName" /></div>
+        <div class="form-group"><label for="nu-lastName">Last Name</label><input type="text" id="nu-lastName" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label for="nu-login">Username</label><input type="text" id="nu-login" autocomplete="off" /></div>
+        <div class="form-group">
+          <label for="nu-role">Role</label>
+          <select id="nu-role"><option value="User">User</option><option value="Admin">Admin</option></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="nu-password">Initial Password</label>
+        <input type="text" id="nu-password" autocomplete="off" />
+      </div>
+      <label class="checkbox"><input type="checkbox" id="nu-must-change" checked /> Ask them to choose their own password at first sign-in</label>
+      <div id="new-user-message" class="form-message"></div>
+      <div class="modal-actions">
+        <button id="new-user-save" class="button button-primary">Create</button>
+        <button id="new-user-cancel" class="button button-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <div id="confirm-modal" class="modal-overlay" style="display: none;">
     <div class="modal-box">
@@ -62,7 +132,9 @@
     </div>
   </div>
 
+  <script src="js/common.js"></script>
   <script src="js/admin.js"></script>
+  <script src="js/admin-dashboard.js"></script>
   <script>
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark") {

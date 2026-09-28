@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Contacts Manager</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
+</head>
+<body>
+
+  <header class="topbar">
+    <h2 class="topbar-title">Contacts Manager</h2>
+    <div class="topbar-right">
+      <span id="welcome-message"></span>
+      <button id="logout-button" class="button button-secondary">Log Out</button>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <h1 id="greeting" class="page-title">Dashboard</h1>
+    <p class="subtitle" id="today"></p>
+
+    <div class="stats">
+      <a class="stat" href="contacts.html"><div class="stat-value" id="count-contacts">-</div><div class="stat-label">My contacts</div></a>
+      <a class="stat" href="contacts.html"><div class="stat-value" id="count-favorites">-</div><div class="stat-label">Favorites</div></a>
+      <a class="stat" href="contacts.html"><div class="stat-value" id="count-shared-with-me">-</div><div class="stat-label">Shared with me</div></a>
+      <a class="stat" href="contacts.html"><div class="stat-value" id="count-shared-by-me">-</div><div class="stat-label">I've shared</div></a>
+    </div>
+
+    <div class="dashboard-grid">
+      <section class="panel">
+        <h3>Upcoming birthdays <span class="subtitle">(next 30 days)</span></h3>
+        <ul id="birthdays" class="simple-list"><li>Loading...</li></ul>
+      </section>
+      <section class="panel">
+        <h3>Recently added</h3>
+        <ul id="recent-contacts" class="simple-list"><li>Loading...</li></ul>
+      </section>
+    </div>
+
+    <section class="panel">
+      <h3>Activity</h3>
+      <ul id="activity" class="activity-list"><li>Loading...</li></ul>
+      <button id="more-activity" class="button button-secondary button-small" style="display: none;">Show more</button>
+    </section>
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script>
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account - Contacts Manager</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⭐</text></svg>">
+</head>
+<body>
+
+  <header class="topbar">
+    <h2 class="topbar-title">Contacts Manager</h2>
+    <div class="topbar-right">
+      <span id="welcome-message"></span>
+      <button id="logout-button" class="button button-secondary">Log Out</button>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <h1 class="page-title">Your account</h1>
+    <p class="subtitle" id="account-summary"></p>
+
+    <div id="forced-banner" class="notice" style="display: none;">
+      <strong>Please choose a new password.</strong>
+      An administrator reset your password. Enter the temporary password you were given, then pick a new one.
+    </div>
+
+    <section class="panel" id="profile-panel">
+      <h3>Profile</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input type="text" id="firstName" maxlength="50" />
+        </div>
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input type="text" id="lastName" maxlength="50" />
+        </div>
+      </div>
+      <div id="profile-message" class="form-message"></div>
+      <button id="save-profile-button" class="button button-primary">Save Profile</button>
+    </section>
+
+    <section class="panel">
+      <h3>Change password</h3>
+      <div class="form-group">
+        <label for="current-password" id="current-password-label">Current Password</label>
+        <input type="password" id="current-password" autocomplete="current-password" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="new-password">New Password</label>
+          <input type="password" id="new-password" autocomplete="new-password" />
+        </div>
+        <div class="form-group">
+          <label for="confirm-password">Confirm New Password</label>
+          <input type="password" id="confirm-password" autocomplete="new-password" />
+        </div>
+      </div>
+      <p class="field-hint">At least 8 characters. Changing it signs you out on your other devices.</p>
+      <div id="password-message" class="form-message"></div>
+      <button id="save-password-button" class="button button-primary">Change Password</button>
+    </section>
+
+    <section class="panel panel-danger" id="danger-panel">
+      <h3>Delete account</h3>
+      <p class="subtitle">Permanently deletes your account, your contacts and tags, and anything you shared.</p>
+      <div class="form-group">
+        <label for="delete-password">Type your password to confirm</label>
+        <input type="password" id="delete-password" autocomplete="current-password" />
+      </div>
+      <div id="delete-message" class="form-message"></div>
+      <button id="delete-account-button" class="button button-danger">Delete My Account</button>
+    </section>
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="js/account.js"></script>
+  <script>
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
+  </script>
+</body>
+</html>
