@@ -13,21 +13,24 @@
 <body>
 
   <header class="topbar">
-    <h2 class="topbar-title">Admin Panel</h2>
+    <h1 class="topbar-title">Admin Panel</h1>
     <div class="topbar-right">
       <span id="welcome-message"></span>
-      <button id="logout-button" class="button button-secondary">Log Out</button>
+      <button type="button" id="logout-button" class="button button-secondary">Log Out</button>
     </div>
   </header>
 
   <main class="page-content">
     <div class="search-row">
-      <input type="text" id="search-input" placeholder="Search users..." autocomplete="off" />
+      <label for="search-input" class="visually-hidden">Search users</label>
+      <input type="search" id="search-input" placeholder="Search users..." autocomplete="off" />
+      <label for="sort-select" class="visually-hidden">Sort by</label>
       <select id="sort-select" class="button button-secondary">
         <option value="lastName">Last Name (A-Z)</option>
         <option value="firstName">First Name (A-Z)</option>
         <option value="recent">Recently Added</option>
       </select>
+      <label for="role-filter" class="visually-hidden">Filter by role</label>
       <select id="role-filter" class="button button-secondary">
         <option value="all">All Roles</option>
         <option value="Admin">Admins Only</option>
@@ -35,26 +38,27 @@
       </select>
     </div>
 
-    <p id="user-count" class="subtitle"></p>
+    <p id="user-count" class="subtitle" aria-live="polite"></p>
 
-    <div id="password-form" class="add-form" style="display: none;">
+    <section id="password-form" class="add-form" style="display: none;" aria-labelledby="password-form-heading">
+      <h2 id="password-form-heading" class="visually-hidden">Change Password</h2>
       <div class="form-group">
         <label for="new-password">New Password</label>
-        <input type="password" id="new-password" />
+        <input type="password" id="new-password" autocomplete="new-password" />
       </div>
       <div id="password-message" class="form-message" role="alert" aria-live="polite"></div>
       <div class="form-actions">
         <button id="save-password-button" class="button button-primary">Save Password</button>
         <button id="cancel-password-button" class="button button-secondary">Cancel</button>
       </div>
-    </div>
+    </section>
 
     <div id="users-list"></div>
   </main>
 
   <div id="confirm-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-box">
-      <p id="confirm-message"></p>
+    <div class="modal-box" role="alertdialog" aria-modal="true" aria-labelledby="confirm-message">
+      <h2 id="confirm-message" class="modal-message"></h2>
       <div class="modal-actions">
         <button id="confirm-yes-button" class="button button-primary">Disable</button>
         <button id="confirm-no-button" class="button button-secondary">Cancel</button>

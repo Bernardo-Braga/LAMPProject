@@ -23,8 +23,8 @@ if (loginForm) {
 
           document.getElementById("login-card").innerHTML = `
             <div class="success-state">
-              <div class="success-icon">&#10003;</div>
-              <h1>You're in!</h1>
+              <div class="success-icon" aria-hidden="true">&#10003;</div>
+              <h2>You're in!</h2>
               <p class="subtitle">Redirecting to your contacts...</p>
             </div>
           `;
@@ -40,8 +40,8 @@ if (loginForm) {
         } else {
           document.getElementById("login-card").innerHTML = `
             <div class="error-state">
-              <div class="error-icon">&#10005;</div>
-              <h1>Login Failed</h1>
+              <div class="error-icon" aria-hidden="true">&#10005;</div>
+              <h2>Login Failed</h2>
               <p class="subtitle">${result.data.error}</p>
               <button onclick="location.reload()" class="button button-primary">Try Again</button>
             </div>
@@ -80,14 +80,14 @@ if (registerForm) {
       .then(function (result) {
         if (result.status === 201) {
           messageBox.textContent = "Account created! Redirecting to sign in...";
-          messageBox.style.color = "green";
+          messageBox.className = "form-message-success";
 
           setTimeout(function () {
             window.location.href = "login.html";
           }, 1000);
         } else {
           messageBox.textContent = result.data.error;
-          messageBox.style.color = "red";
+          messageBox.className = "form-message-error";
         }
       });
   });

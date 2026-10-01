@@ -69,19 +69,36 @@ function showConfirm(message) {
 
     const yesButton = document.getElementById("confirm-yes-button");
     const noButton = document.getElementById("confirm-no-button");
+    const previouslyFocused = document.activeElement;
 
     function onYes() { cleanup(true); }
     function onNo() { cleanup(false); }
+
+    // Escape cancels, and Tab stays inside the dialog
+    function onKeydown(event) {
+      if (event.key === "Escape") {
+        cleanup(false);
+      } else if (event.key === "Tab") {
+        event.preventDefault();
+        (document.activeElement === noButton ? yesButton : noButton).focus();
+      }
+    }
 
     function cleanup(result) {
       modal.style.display = "none";
       yesButton.removeEventListener("click", onYes);
       noButton.removeEventListener("click", onNo);
+      modal.removeEventListener("keydown", onKeydown);
+      if (previouslyFocused && document.body.contains(previouslyFocused)) {
+        previouslyFocused.focus();
+      }
       resolve(result);
     }
 
     yesButton.addEventListener("click", onYes);
     noButton.addEventListener("click", onNo);
+    modal.addEventListener("keydown", onKeydown);
+    noButton.focus();
   });
 }
 
@@ -126,13 +143,13 @@ function renderContacts(contactsToShow) {
     card.className = "contact-card";
     card.innerHTML = `
       <div class="contact-info">
-        <h3>${contact.firstName} ${contact.lastName}</h3>
+        <h2>${contact.firstName} ${contact.lastName}</h2>
         <p>${contact.cell} &middot; ${contact.email}</p>
       </div>
       <div class="contact-actions">
-        <button class="star-button ${isFavorite(contact.id) ? "favorited" : ""}" data-id="${contact.id}">★</button>
-        <button class="edit-button" data-id="${contact.id}">Edit</button>
-        <button class="delete-button" data-id="${contact.id}">Delete</button>
+        <button type="button" class="star-button ${isFavorite(contact.id) ? "favorited" : ""}" data-id="${contact.id}" aria-pressed="${isFavorite(contact.id)}" aria-label="Favorite ${contact.firstName} ${contact.lastName}">★</button>
+        <button type="button" class="edit-button" data-id="${contact.id}" aria-label="Edit ${contact.firstName} ${contact.lastName}">Edit</button>
+        <button type="button" class="delete-button" data-id="${contact.id}" aria-label="Delete ${contact.firstName} ${contact.lastName}">Delete</button>
       </div>
     `;
     listContainer.appendChild(card);
@@ -162,10 +179,14 @@ let editingContactId = null;
 addContactButton.addEventListener("click", function () {
   editingContactId = null;
   addContactForm.style.display = "block";
+  addContactButton.setAttribute("aria-expanded", "true");
+  document.getElementById("new-firstName").focus();
 });
 
 cancelAddButton.addEventListener("click", function () {
   addContactForm.style.display = "none";
+  addContactButton.setAttribute("aria-expanded", "false");
+  addContactButton.focus();
 });
 
 saveContactButton.addEventListener("click", async function () {
@@ -245,6 +266,7 @@ saveContactButton.addEventListener("click", async function () {
   document.getElementById("new-cell").value = "";
   document.getElementById("new-email").value = "";
   addContactForm.style.display = "none";
+  addContactButton.setAttribute("aria-expanded", "false");
 });
 
 document.getElementById("contacts-list").addEventListener("click", async function (event) {
@@ -252,6 +274,8 @@ document.getElementById("contacts-list").addEventListener("click", async functio
     const idToToggle = Number(event.target.getAttribute("data-id"));
     toggleFavorite(idToToggle);
     renderContacts(getDisplayedContacts());
+    // Re-rendering replaces the button, so restore focus to the new one
+    document.querySelector('.star-button[data-id="' + idToToggle + '"]').focus();
   }
   
   if (event.target.classList.contains("delete-button")) {
@@ -296,5 +320,7 @@ document.getElementById("contacts-list").addEventListener("click", async functio
 
     editingContactId = idToEdit;
     addContactForm.style.display = "block";
+    addContactButton.setAttribute("aria-expanded", "true");
+    document.getElementById("new-firstName").focus();
   }
 });

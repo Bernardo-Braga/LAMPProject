@@ -65,17 +65,17 @@ function renderUsers(usersToShow) {
 
     card.innerHTML = `
       <div class="user-info">
-        <h3>${user.firstName} ${user.lastName} ${badges}</h3>
+        <h2>${user.firstName} ${user.lastName} ${badges}</h2>
         <p>${user.login}</p>
       </div>
       <div class="user-actions">
-        <button class="toggle-disable-button" data-id="${user.id}" ${(user.isDisabled || isSelf) ? "disabled" : ""}>
+        <button type="button" class="toggle-disable-button" data-id="${user.id}" aria-label="${user.isDisabled ? "Disabled" : (isSelf ? "Can't disable yourself" : "Disable " + user.firstName + " " + user.lastName)}" ${(user.isDisabled || isSelf) ? "disabled" : ""}>
           ${user.isDisabled ? "Disabled" : (isSelf ? "Can't disable yourself" : "Disable")}
         </button>
-        <button class="toggle-admin-button" data-id="${user.id}" disabled>
+        <button type="button" class="toggle-admin-button" data-id="${user.id}" disabled>
           ${user.role === "Admin" ? "Demote" : "Promote to Admin"}
         </button>
-        <button class="change-password-button" data-id="${user.id}">Change Password</button>
+        <button type="button" class="change-password-button" data-id="${user.id}" aria-label="Change Password for ${user.firstName} ${user.lastName}">Change Password</button>
       </div>
     `;
     listContainer.appendChild(card);
@@ -90,19 +90,36 @@ function showConfirm(message) {
 
     const yesButton = document.getElementById("confirm-yes-button");
     const noButton = document.getElementById("confirm-no-button");
+    const previouslyFocused = document.activeElement;
 
     function onYes() { cleanup(true); }
     function onNo() { cleanup(false); }
+
+    // Escape cancels, and Tab stays inside the dialog
+    function onKeydown(event) {
+      if (event.key === "Escape") {
+        cleanup(false);
+      } else if (event.key === "Tab") {
+        event.preventDefault();
+        (document.activeElement === noButton ? yesButton : noButton).focus();
+      }
+    }
 
     function cleanup(result) {
       modal.style.display = "none";
       yesButton.removeEventListener("click", onYes);
       noButton.removeEventListener("click", onNo);
+      modal.removeEventListener("keydown", onKeydown);
+      if (previouslyFocused && document.body.contains(previouslyFocused)) {
+        previouslyFocused.focus();
+      }
       resolve(result);
     }
 
     yesButton.addEventListener("click", onYes);
     noButton.addEventListener("click", onNo);
+    modal.addEventListener("keydown", onKeydown);
+    noButton.focus();
   });
 }
 
@@ -199,6 +216,7 @@ document.getElementById("users-list").addEventListener("click", async function (
   if (event.target.classList.contains("change-password-button")) {
     passwordTargetUserId = clickedId;
     passwordForm.style.display = "block";
+    document.getElementById("new-password").focus();
   }
 });
 
