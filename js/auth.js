@@ -19,30 +19,45 @@ if (loginForm) {
       })
       .then(function (result) {
         if (result.status === 200) {
+          // Includes role and the csrfToken that every later POST must send (see js/common.js).
           sessionStorage.setItem("currentUser", JSON.stringify(result.data));
 
           document.getElementById("login-card").innerHTML = `
             <div class="success-state">
+<<<<<<< HEAD
               <div class="success-icon" aria-hidden="true">&#10003;</div>
               <h2>You're in!</h2>
               <p class="subtitle">Redirecting to your contacts...</p>
+=======
+              <div class="success-icon">&#10003;</div>
+              <h1>You're in!</h1>
+              <p class="subtitle">Redirecting...</p>
+>>>>>>> 4e179ec6ac760c7a9df271b71c42e002803a33bd
             </div>
           `;
 
           setTimeout(function () {
-            // TEMPORARY: hardcoded admin check until Login.php returns a real Role field
-            if (login === "root") {
+            // Login.php now returns the real role, so admins go to the admin page.
+            if (result.data.mustChangePassword) {
+              window.location.href = "account.html?forced=1";
+            } else if (result.data.role === "Admin") {
               window.location.href = "admin.html";
             } else {
-              window.location.href = "contacts.html";
+              window.location.href = "dashboard.html";
             }
           }, 1000);
         } else {
           document.getElementById("login-card").innerHTML = `
             <div class="error-state">
+<<<<<<< HEAD
               <div class="error-icon" aria-hidden="true">&#10005;</div>
               <h2>Login Failed</h2>
               <p class="subtitle">${result.data.error}</p>
+=======
+              <div class="error-icon">&#10005;</div>
+              <h1>Login Failed</h1>
+              <p class="subtitle">${escapeHtml(result.data.error)}</p>
+>>>>>>> 4e179ec6ac760c7a9df271b71c42e002803a33bd
               <button onclick="location.reload()" class="button button-primary">Try Again</button>
             </div>
           `;
@@ -86,8 +101,14 @@ if (registerForm) {
             window.location.href = "login.html";
           }, 1000);
         } else {
+<<<<<<< HEAD
           messageBox.textContent = result.data.error;
           messageBox.className = "form-message-error";
+=======
+          // Validation problems come back per field, e.g. "Password must be at least 8 characters"
+          messageBox.textContent = result.data.details ? Object.values(result.data.details).join(" ") : result.data.error;
+          messageBox.style.color = "red";
+>>>>>>> 4e179ec6ac760c7a9df271b71c42e002803a33bd
         }
       });
   });

@@ -33,7 +33,27 @@
       <button type="button" id="add-contact-button" class="button button-primary" aria-controls="add-contact-form" aria-expanded="false">+ Add Contact</button>
     </div>
 
+<<<<<<< HEAD
     <p id="contact-count" class="subtitle" aria-live="polite"></p>
+=======
+    <div class="view-row">
+      <div class="segmented" id="view-buttons" role="group" aria-label="Which contacts">
+        <button type="button" data-view="all" aria-pressed="true">All</button>
+        <button type="button" data-view="mine" aria-pressed="false">Mine</button>
+        <button type="button" data-view="shared" aria-pressed="false">Shared with me</button>
+        <button type="button" data-view="favorites" aria-pressed="false">&#9733; Favorites</button>
+      </div>
+      <div class="view-actions">
+        <button id="manage-tags-button" class="button button-secondary button-small">Tags</button>
+        <button id="import-button" class="button button-secondary button-small">Import CSV</button>
+        <a href="/api/ExportContacts.php" class="button button-secondary button-small" download>Export CSV</a>
+      </div>
+    </div>
+
+    <div id="tag-filter" class="chips" aria-label="Filter by tag"></div>
+
+    <p id="contact-count" class="subtitle"></p>
+>>>>>>> 4e179ec6ac760c7a9df271b71c42e002803a33bd
 
     <section id="add-contact-form" class="add-form" style="display: none;" aria-labelledby="add-contact-heading">
       <h2 id="add-contact-heading" class="visually-hidden">Add Contact</h2>
@@ -57,7 +77,47 @@
           <input type="email" id="new-email" autocomplete="off" />
         </div>
       </div>
+<<<<<<< HEAD
       <div id="add-contact-message" class="form-message" role="alert"></div>
+=======
+      <div class="form-row">
+        <div class="form-group">
+          <label for="new-company">Company</label>
+          <input type="text" id="new-company" />
+        </div>
+        <div class="form-group">
+          <label for="new-jobTitle">Job Title</label>
+          <input type="text" id="new-jobTitle" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="new-address">Address</label>
+          <input type="text" id="new-address" />
+        </div>
+        <div class="form-group">
+          <label for="new-birthday">Birthday</label>
+          <input type="date" id="new-birthday" min="1900-01-01" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="new-notes">Notes</label>
+        <textarea id="new-notes" rows="3" maxlength="2000"></textarea>
+      </div>
+      <div class="form-group" id="tag-picker-group">
+        <span class="label">Tags</span>
+        <div id="tag-picker" class="tag-picker"></div>
+      </div>
+      <div class="form-group">
+        <label for="new-photo">Photo</label>
+        <div class="photo-row">
+          <span id="photo-preview"></span>
+          <input type="file" id="new-photo" accept="image/jpeg,image/png,image/webp,image/gif" />
+          <button type="button" id="remove-photo-button" class="button button-secondary button-small" style="display: none;">Remove photo</button>
+        </div>
+      </div>
+      <div id="add-contact-message" class="form-message"></div>
+>>>>>>> 4e179ec6ac760c7a9df271b71c42e002803a33bd
       <div class="form-actions">
         <button id="save-contact-button" class="button button-primary">Save Contact</button>
         <button id="cancel-add-button" class="button button-secondary">Cancel</button>
@@ -77,6 +137,72 @@
     </div>
   </div>
 
+  <!-- Share a contact with another user -->
+  <div id="share-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-box modal-wide">
+      <h3 id="share-title">Share contact</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="share-login">Username</label>
+          <input type="text" id="share-login" placeholder="their username" />
+        </div>
+        <div class="form-group">
+          <label for="share-permission">Access</label>
+          <select id="share-permission">
+            <option value="view">View only</option>
+            <option value="edit">Can edit</option>
+          </select>
+        </div>
+      </div>
+      <div id="share-message" class="form-message"></div>
+      <div id="share-list" class="share-list"></div>
+      <div class="modal-actions">
+        <button id="share-save-button" class="button button-primary">Share</button>
+        <button id="share-close-button" class="button button-secondary">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import contacts from a CSV file -->
+  <div id="import-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-box modal-wide">
+      <h3>Import contacts</h3>
+      <p class="modal-text">Choose a .csv file whose first row has headings such as First Name, Last Name,
+        Phone, Email, Company, Job Title, Address, Birthday (YYYY-MM-DD), Notes and Tags (separated by ;).
+        A file from Export CSV works as-is.</p>
+      <input type="file" id="import-file" accept=".csv,text/csv" />
+      <div id="import-message" class="form-message"></div>
+      <div class="modal-actions">
+        <button id="import-save-button" class="button button-primary">Import</button>
+        <button id="import-close-button" class="button button-secondary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create, rename, recolor and delete tags -->
+  <div id="tags-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-box modal-wide">
+      <h3>Your tags</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="new-tag-name">New tag</label>
+          <input type="text" id="new-tag-name" maxlength="40" placeholder="e.g. Family" />
+        </div>
+        <div class="form-group tag-color-group">
+          <label for="new-tag-color">Color</label>
+          <input type="color" id="new-tag-color" value="#ec4899" />
+        </div>
+      </div>
+      <div id="tags-message" class="form-message"></div>
+      <div id="tag-list" class="tag-list"></div>
+      <div class="modal-actions">
+        <button id="add-tag-button" class="button button-primary">Add tag</button>
+        <button id="tags-close-button" class="button button-secondary">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/common.js"></script>
   <script src="js/contacts.js"></script>
   <script>
     const savedTheme = localStorage.getItem("theme");
