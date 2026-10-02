@@ -22,6 +22,7 @@ if (forced) {
   document.getElementById("current-password-label").textContent = "Temporary Password";
   const nav = document.querySelector(".main-nav");
   if (nav) nav.style.display = "none";
+  document.getElementById("current-password").focus();
 }
 
 function setMessage(id, text, ok) {

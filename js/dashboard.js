@@ -22,7 +22,7 @@ document.getElementById("today").textContent =
 let activityPage = 0; // 0 = showing the short list from Dashboard.php
 
 function activityItem(item) {
-  return `<li><span class="activity-dot"></span><div>${escapeHtml(activityText(item))}
+  return `<li><span class="activity-dot" aria-hidden="true"></span><div>${escapeHtml(activityText(item))}
     <span class="activity-time" title="${escapeHtml(formatDateTime(item.dateCreated))}">${escapeHtml(timeAgo(item.dateCreated))}</span></div></li>`;
 }
 
