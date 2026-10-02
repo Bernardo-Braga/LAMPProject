@@ -9,15 +9,24 @@ function selectAdminTab(name) {
   adminTabs.forEach(function (tab) {
     const active = tab.getAttribute("data-tab") === name;
     tab.setAttribute("aria-selected", String(active));
+    tab.tabIndex = active ? 0 : -1;
     document.getElementById("panel-" + tab.getAttribute("data-tab")).style.display = active ? "block" : "none";
   });
   if (name === "stats") loadStats();
   if (name === "audit") loadAudit();
 }
 
-adminTabs.forEach(function (tab) {
+adminTabs.forEach(function (tab, index) {
   tab.addEventListener("click", function () {
     selectAdminTab(tab.getAttribute("data-tab"));
+  });
+  // Left/Right arrows move between tabs, as screen reader users expect
+  tab.addEventListener("keydown", function (event) {
+    const step = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+    if (!step) return;
+    const next = adminTabs[(index + step + adminTabs.length) % adminTabs.length];
+    selectAdminTab(next.getAttribute("data-tab"));
+    next.focus();
   });
 });
 
@@ -169,11 +178,11 @@ document.getElementById("new-user-button").addEventListener("click", function ()
   });
   document.getElementById("nu-password").value = randomPassword();
   document.getElementById("new-user-message").textContent = "";
-  document.getElementById("new-user-modal").style.display = "flex";
+  openDialog(document.getElementById("new-user-modal"));
 });
 
 document.getElementById("new-user-cancel").addEventListener("click", function () {
-  document.getElementById("new-user-modal").style.display = "none";
+  closeDialog(document.getElementById("new-user-modal"));
 });
 
 document.getElementById("new-user-save").addEventListener("click", async function () {
@@ -192,7 +201,7 @@ document.getElementById("new-user-save").addEventListener("click", async functio
     document.getElementById("new-user-message").textContent = errorMessage(result);
     return;
   }
-  document.getElementById("new-user-modal").style.display = "none";
+  closeDialog(document.getElementById("new-user-modal"));
   showToast("User created. Share the password with them securely.");
   loadUsers();
 });

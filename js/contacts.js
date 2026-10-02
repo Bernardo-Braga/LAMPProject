@@ -503,10 +503,10 @@ function renderTagFilter() {
     container.innerHTML = "";
     return;
   }
-  container.innerHTML = `<button class="chip" data-tag="" aria-pressed="${currentTagId === null}">All tags</button>` +
+  container.innerHTML = `<button type="button" class="chip" data-tag="" aria-pressed="${currentTagId === null}">All tags</button>` +
     tags.map(function (tag) {
-      return `<button class="chip" data-tag="${tag.ID}" aria-pressed="${currentTagId === tag.ID}">
-        <span class="dot" style="background:${escapeHtml(tag.Color)}"></span>${escapeHtml(tag.Name)}
+      return `<button type="button" class="chip" data-tag="${tag.ID}" aria-pressed="${currentTagId === tag.ID}">
+        <span class="dot" style="background:${escapeHtml(tag.Color)}" aria-hidden="true"></span>${escapeHtml(tag.Name)}
         <span class="chip-count">${tag.ContactCount}</span></button>`;
     }).join("");
   container.querySelectorAll(".chip").forEach(function (chip) {
@@ -515,6 +515,8 @@ function renderTagFilter() {
       currentTagId = currentTagId === id ? null : id;
       renderTagFilter();
       renderContacts(getDisplayedContacts());
+      // Re-rendering replaces the chips, so restore focus to the new one
+      container.querySelector('.chip[data-tag="' + chip.getAttribute("data-tag") + '"]').focus();
     });
   });
 }
@@ -523,11 +525,11 @@ function renderTagManager() {
   document.getElementById("tag-list").innerHTML = tags.length
     ? tags.map(function (tag) {
         return `<div class="tag-row" data-id="${tag.ID}">
-          <input type="color" value="${escapeHtml(tag.Color)}" aria-label="Color">
-          <input type="text" value="${escapeHtml(tag.Name)}" maxlength="40" aria-label="Tag name">
+          <input type="color" value="${escapeHtml(tag.Color)}" aria-label="Color for ${escapeHtml(tag.Name)}">
+          <input type="text" value="${escapeHtml(tag.Name)}" maxlength="40" aria-label="Name for ${escapeHtml(tag.Name)}">
           <span class="subtitle">${tag.ContactCount} contact(s)</span>
-          <button class="button button-secondary button-small save-tag">Save</button>
-          <button class="button button-secondary button-small delete-tag">Delete</button>
+          <button type="button" class="button button-secondary button-small save-tag" aria-label="Save ${escapeHtml(tag.Name)}">Save</button>
+          <button type="button" class="button button-secondary button-small delete-tag" aria-label="Delete ${escapeHtml(tag.Name)}">Delete</button>
         </div>`;
       }).join("")
     : `<p class="subtitle">You haven't created any tags yet.</p>`;
@@ -536,11 +538,11 @@ function renderTagManager() {
 document.getElementById("manage-tags-button").addEventListener("click", function () {
   document.getElementById("tags-message").textContent = "";
   renderTagManager();
-  document.getElementById("tags-modal").style.display = "flex";
+  openDialog(document.getElementById("tags-modal"));
 });
 
 document.getElementById("tags-close-button").addEventListener("click", function () {
-  document.getElementById("tags-modal").style.display = "none";
+  closeDialog(document.getElementById("tags-modal"));
 });
 
 document.getElementById("add-tag-button").addEventListener("click", async function () {
@@ -590,7 +592,7 @@ async function openShareModal(contactId) {
   document.getElementById("share-title").textContent = "Share " + contact.firstName + " " + contact.lastName;
   document.getElementById("share-login").value = "";
   document.getElementById("share-message").textContent = "";
-  document.getElementById("share-modal").style.display = "flex";
+  openDialog(document.getElementById("share-modal"));
   await renderShareList();
 }
 
@@ -602,7 +604,7 @@ async function renderShareList() {
         return `<div class="share-row">
           <span><strong>${escapeHtml(share.FirstName + " " + share.LastName)}</strong> @${escapeHtml(share.Login)}
             &middot; ${share.Permission === "edit" ? "can edit" : "view only"}</span>
-          <button class="button button-secondary button-small remove-share" data-user="${share.UserID}">Remove</button>
+          <button type="button" class="button button-secondary button-small remove-share" data-user="${share.UserID}" aria-label="Remove ${escapeHtml(share.FirstName + " " + share.LastName)}">Remove</button>
         </div>`;
       }).join("")
     : `<p class="subtitle">Not shared with anyone yet.</p>`;
@@ -637,7 +639,7 @@ document.getElementById("share-list").addEventListener("click", async function (
 });
 
 document.getElementById("share-close-button").addEventListener("click", function () {
-  document.getElementById("share-modal").style.display = "none";
+  closeDialog(document.getElementById("share-modal"));
 });
 
 // ---- CSV import ----
@@ -645,11 +647,11 @@ document.getElementById("share-close-button").addEventListener("click", function
 document.getElementById("import-button").addEventListener("click", function () {
   document.getElementById("import-file").value = "";
   document.getElementById("import-message").textContent = "";
-  document.getElementById("import-modal").style.display = "flex";
+  openDialog(document.getElementById("import-modal"));
 });
 
 document.getElementById("import-close-button").addEventListener("click", function () {
-  document.getElementById("import-modal").style.display = "none";
+  closeDialog(document.getElementById("import-modal"));
 });
 
 document.getElementById("import-save-button").addEventListener("click", async function () {

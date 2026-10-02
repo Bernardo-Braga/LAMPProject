@@ -182,7 +182,7 @@ function timeAgo(value) {
 
 // Round picture with the contact's photo, or their initials on a colored background.
 function avatarHtml(name, photoUrl) {
-  const colors = ["#db2777", "#9333ea", "#2563eb", "#0891b2", "#059669", "#d97706", "#dc2626", "#7c3aed"];
+  const colors = ["#db2777", "#9333ea", "#2563eb", "#0e7490", "#047857", "#b45309", "#dc2626", "#7c3aed"];
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
   const initials = name.trim().split(/\s+/).map(function (w) { return w[0]; }).slice(0, 2).join("");
@@ -196,4 +196,47 @@ function avatarHtml(name, photoUrl) {
 // One activity entry as text: "You added contact Ben Brown", "Rosie P updated contact ..."
 function activityText(item) {
   return (item.isYou ? "You" : item.actorName || "Someone") + " " + item.summary;
+}
+
+// Open one of the page's dialogs (a .modal-overlay): focus moves into it, Tab stays inside,
+// Escape closes it, and closeDialog() puts focus back where it was.
+const openDialogs = [];
+
+function openDialog(overlay, initialFocus) {
+  const entry = { overlay: overlay, returnTo: document.activeElement };
+  entry.onKeydown = function (event) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeDialog(overlay);
+    } else if (event.key === "Tab") {
+      const focusable = Array.from(overlay.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )).filter(function (el) { return !el.disabled && el.offsetParent !== null; });
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  };
+  overlay.addEventListener("keydown", entry.onKeydown);
+  openDialogs.push(entry);
+  overlay.style.display = "flex";
+  (initialFocus || overlay.querySelector("input, select, textarea, button")).focus();
+}
+
+function closeDialog(overlay) {
+  const index = openDialogs.findIndex(function (entry) { return entry.overlay === overlay; });
+  overlay.style.display = "none";
+  if (index === -1) return;
+  const entry = openDialogs.splice(index, 1)[0];
+  overlay.removeEventListener("keydown", entry.onKeydown);
+  if (entry.returnTo && document.body.contains(entry.returnTo)) {
+    entry.returnTo.focus();
+  }
 }
