@@ -33,9 +33,6 @@
       <button type="button" id="add-contact-button" class="button button-primary" aria-controls="add-contact-form" aria-expanded="false">+ Add Contact</button>
     </div>
 
-<<<<<<< HEAD
-    <p id="contact-count" class="subtitle" aria-live="polite"></p>
-=======
     <div class="view-row">
       <div class="segmented" id="view-buttons" role="group" aria-label="Which contacts">
         <button type="button" data-view="all" aria-pressed="true">All</button>
@@ -44,16 +41,15 @@
         <button type="button" data-view="favorites" aria-pressed="false">&#9733; Favorites</button>
       </div>
       <div class="view-actions">
-        <button id="manage-tags-button" class="button button-secondary button-small">Tags</button>
-        <button id="import-button" class="button button-secondary button-small">Import CSV</button>
+        <button type="button" id="manage-tags-button" class="button button-secondary button-small">Tags</button>
+        <button type="button" id="import-button" class="button button-secondary button-small">Import CSV</button>
         <a href="/api/ExportContacts.php" class="button button-secondary button-small" download>Export CSV</a>
       </div>
     </div>
 
-    <div id="tag-filter" class="chips" aria-label="Filter by tag"></div>
+    <div id="tag-filter" class="chips" role="group" aria-label="Filter by tag"></div>
 
-    <p id="contact-count" class="subtitle"></p>
->>>>>>> 4e179ec6ac760c7a9df271b71c42e002803a33bd
+    <p id="contact-count" class="subtitle" aria-live="polite"></p>
 
     <section id="add-contact-form" class="add-form" style="display: none;" aria-labelledby="add-contact-heading">
       <h2 id="add-contact-heading" class="visually-hidden">Add Contact</h2>
@@ -77,23 +73,20 @@
           <input type="email" id="new-email" autocomplete="off" />
         </div>
       </div>
-<<<<<<< HEAD
-      <div id="add-contact-message" class="form-message" role="alert"></div>
-=======
       <div class="form-row">
         <div class="form-group">
           <label for="new-company">Company</label>
-          <input type="text" id="new-company" />
+          <input type="text" id="new-company" autocomplete="off" />
         </div>
         <div class="form-group">
           <label for="new-jobTitle">Job Title</label>
-          <input type="text" id="new-jobTitle" />
+          <input type="text" id="new-jobTitle" autocomplete="off" />
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label for="new-address">Address</label>
-          <input type="text" id="new-address" />
+          <input type="text" id="new-address" autocomplete="off" />
         </div>
         <div class="form-group">
           <label for="new-birthday">Birthday</label>
@@ -116,8 +109,7 @@
           <button type="button" id="remove-photo-button" class="button button-secondary button-small" style="display: none;">Remove photo</button>
         </div>
       </div>
-      <div id="add-contact-message" class="form-message"></div>
->>>>>>> 4e179ec6ac760c7a9df271b71c42e002803a33bd
+      <div id="add-contact-message" class="form-message" role="alert"></div>
       <div class="form-actions">
         <button id="save-contact-button" class="button button-primary">Save Contact</button>
         <button id="cancel-add-button" class="button button-secondary">Cancel</button>

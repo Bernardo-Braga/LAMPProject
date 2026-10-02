@@ -493,7 +493,6 @@ h1,
   padding: 7px 10px;
 }
 
-<<<<<<< HEAD
 .contact-actions .star-button {
   color: var(--color-muted);
 }
@@ -502,22 +501,6 @@ h1,
   color: var(--color-star);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .brand-title,
-  .topbar-title {
-    animation: none;
-  }
-
-  .button,
-  .button:active {
-    transition: none;
-    transform: none;
-  }
-}
-=======
-.star-button.favorited {
-  color: #f59e0b;
-}
 
 /* ==========================================================================
    Added for the expanded app: navigation, tags, sharing, dashboard, admin tabs.
@@ -711,4 +694,16 @@ a.stat:hover { box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06); }
 .view-actions .button { display: inline-flex; align-items: center; line-height: 1.2; }
 .user-card { gap: 14px; }
 .user-actions { flex-wrap: wrap; justify-content: flex-end; }
->>>>>>> 4e179ec6ac760c7a9df271b71c42e002803a33bd
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-title,
+  .topbar-title {
+    animation: none;
+  }
+
+  .button,
+  .button:active {
+    transition: none;
+    transform: none;
+  }
+}

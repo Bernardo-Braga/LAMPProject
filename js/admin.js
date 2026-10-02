@@ -78,37 +78,24 @@ function renderUsers(usersToShow) {
     }
 
     const lastSeen = user.lastLoginAt ? "last sign-in " + timeAgo(user.lastLoginAt) : "never signed in";
+    const fullName = escapeHtml(user.firstName + " " + user.lastName);
 
     card.innerHTML = `
       <div class="user-info">
-<<<<<<< HEAD
-        <h2>${user.firstName} ${user.lastName} ${badges}</h2>
-        <p>${user.login}</p>
-      </div>
-      <div class="user-actions">
-        <button type="button" class="toggle-disable-button" data-id="${user.id}" aria-label="${user.isDisabled ? "Disabled" : (isSelf ? "Can't disable yourself" : "Disable " + user.firstName + " " + user.lastName)}" ${(user.isDisabled || isSelf) ? "disabled" : ""}>
-          ${user.isDisabled ? "Disabled" : (isSelf ? "Can't disable yourself" : "Disable")}
-        </button>
-        <button type="button" class="toggle-admin-button" data-id="${user.id}" disabled>
-          ${user.role === "Admin" ? "Demote" : "Promote to Admin"}
-        </button>
-        <button type="button" class="change-password-button" data-id="${user.id}" aria-label="Change Password for ${user.firstName} ${user.lastName}">Change Password</button>
-=======
-        <h3>${escapeHtml(user.firstName)} ${escapeHtml(user.lastName)} ${badges}</h3>
+        <h2>${escapeHtml(user.firstName)} ${escapeHtml(user.lastName)} ${badges}</h2>
         <p>${escapeHtml(user.login)} &middot; ${user.contactCount} contact(s) &middot; ${lastSeen}</p>
       </div>
       <div class="user-actions">
-        <button class="toggle-disable-button" data-id="${user.id}" ${isSelf ? "disabled" : ""}>
+        <button type="button" class="toggle-disable-button" data-id="${user.id}" aria-label="${isSelf ? "Can't disable yourself" : (user.isDisabled ? "Enable " : "Disable ") + fullName}" ${isSelf ? "disabled" : ""}>
           ${isSelf ? "Can't disable yourself" : (user.isDisabled ? "Enable" : "Disable")}
         </button>
-        <button class="toggle-admin-button" data-id="${user.id}" ${isSelf ? "disabled" : ""}>
+        <button type="button" class="toggle-admin-button" data-id="${user.id}" aria-label="${(user.role === "Admin" ? "Demote " : "Promote to Admin ") + fullName}" ${isSelf ? "disabled" : ""}>
           ${user.role === "Admin" ? "Demote" : "Promote to Admin"}
         </button>
-        <button class="change-password-button" data-id="${user.id}">Change Password</button>
-        ${user.isLocked ? `<button class="unlock-button" data-id="${user.id}">Unlock</button>` : ""}
-        ${isSelf ? "" : `<button class="signout-user-button" data-id="${user.id}">Sign Out</button>`}
-        ${isSelf ? "" : `<button class="delete-user-button" data-id="${user.id}">Delete</button>`}
->>>>>>> 4e179ec6ac760c7a9df271b71c42e002803a33bd
+        <button type="button" class="change-password-button" data-id="${user.id}" aria-label="Change Password for ${fullName}">Change Password</button>
+        ${user.isLocked ? `<button type="button" class="unlock-button" data-id="${user.id}" aria-label="Unlock ${fullName}">Unlock</button>` : ""}
+        ${isSelf ? "" : `<button type="button" class="signout-user-button" data-id="${user.id}" aria-label="Sign Out ${fullName}">Sign Out</button>`}
+        ${isSelf ? "" : `<button type="button" class="delete-user-button" data-id="${user.id}" aria-label="Delete ${fullName}">Delete</button>`}
       </div>
     `;
     listContainer.appendChild(card);
@@ -123,11 +110,8 @@ function showConfirm(message, confirmLabel) {
 
     const yesButton = document.getElementById("confirm-yes-button");
     const noButton = document.getElementById("confirm-no-button");
-<<<<<<< HEAD
     const previouslyFocused = document.activeElement;
-=======
     yesButton.textContent = confirmLabel || "Disable";
->>>>>>> 4e179ec6ac760c7a9df271b71c42e002803a33bd
 
     function onYes() { cleanup(true); }
     function onNo() { cleanup(false); }

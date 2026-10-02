@@ -177,6 +177,7 @@ function renderContacts(contactsToShow) {
     const card = document.createElement("div");
     card.className = "contact-card";
     const fullName = contact.firstName + " " + contact.lastName;
+    const safeName = escapeHtml(fullName);
     const work = [contact.jobTitle, contact.company].filter(Boolean).join(" at ");
     const reach = [contact.cell, contact.email].filter(Boolean).map(escapeHtml).join(" &middot; ");
     const tagChips = contact.tags.map(function (tag) {
@@ -195,27 +196,17 @@ function renderContacts(contactsToShow) {
     card.innerHTML = `
       ${avatarHtml(fullName, contact.photoUrl)}
       <div class="contact-info">
-<<<<<<< HEAD
-        <h2>${contact.firstName} ${contact.lastName}</h2>
-        <p>${contact.cell} &middot; ${contact.email}</p>
-      </div>
-      <div class="contact-actions">
-        <button type="button" class="star-button ${isFavorite(contact.id) ? "favorited" : ""}" data-id="${contact.id}" aria-pressed="${isFavorite(contact.id)}" aria-label="Favorite ${contact.firstName} ${contact.lastName}">★</button>
-        <button type="button" class="edit-button" data-id="${contact.id}" aria-label="Edit ${contact.firstName} ${contact.lastName}">Edit</button>
-        <button type="button" class="delete-button" data-id="${contact.id}" aria-label="Delete ${contact.firstName} ${contact.lastName}">Delete</button>
-=======
-        <h3>${escapeHtml(fullName)}</h3>
+        <h2>${safeName}</h2>
         ${work ? `<p>${escapeHtml(work)}</p>` : ""}
         ${reach ? `<p>${reach}</p>` : ""}
         ${contact.birthday ? `<p>Birthday: ${escapeHtml(formatDate(contact.birthday, { month: "long", day: "numeric" }))}</p>` : ""}
         ${tagChips || sharing ? `<div class="contact-meta">${tagChips}${sharing}</div>` : ""}
       </div>
       <div class="contact-actions">
-        <button class="star-button ${isFavorite(contact.id) ? "favorited" : ""}" data-id="${contact.id}" aria-label="Favorite">★</button>
-        ${canEdit ? `<button class="edit-button" data-id="${contact.id}">Edit</button>` : ""}
-        ${isOwner ? `<button class="share-button" data-id="${contact.id}">Share</button>` : ""}
-        ${isOwner ? `<button class="delete-button" data-id="${contact.id}">Delete</button>` : `<button class="leave-button" data-id="${contact.id}">Remove</button>`}
->>>>>>> 4e179ec6ac760c7a9df271b71c42e002803a33bd
+        <button type="button" class="star-button ${isFavorite(contact.id) ? "favorited" : ""}" data-id="${contact.id}" aria-pressed="${isFavorite(contact.id)}" aria-label="Favorite ${safeName}">★</button>
+        ${canEdit ? `<button type="button" class="edit-button" data-id="${contact.id}" aria-label="Edit ${safeName}">Edit</button>` : ""}
+        ${isOwner ? `<button type="button" class="share-button" data-id="${contact.id}" aria-label="Share ${safeName}">Share</button>` : ""}
+        ${isOwner ? `<button type="button" class="delete-button" data-id="${contact.id}" aria-label="Delete ${safeName}">Delete</button>` : `<button type="button" class="leave-button" data-id="${contact.id}" aria-label="Remove ${safeName}">Remove</button>`}
       </div>
     `;
     listContainer.appendChild(card);
@@ -412,12 +403,9 @@ document.getElementById("contacts-list").addEventListener("click", async functio
 
     editingContactId = idToEdit;
     addContactForm.style.display = "block";
-<<<<<<< HEAD
     addContactButton.setAttribute("aria-expanded", "true");
-    document.getElementById("new-firstName").focus();
-=======
     addContactForm.scrollIntoView({ behavior: "smooth", block: "start" });
->>>>>>> 4e179ec6ac760c7a9df271b71c42e002803a33bd
+    document.getElementById("new-firstName").focus({ preventScroll: true });
   }
 });
 

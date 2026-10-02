@@ -24,15 +24,9 @@ if (loginForm) {
 
           document.getElementById("login-card").innerHTML = `
             <div class="success-state">
-<<<<<<< HEAD
               <div class="success-icon" aria-hidden="true">&#10003;</div>
               <h2>You're in!</h2>
-              <p class="subtitle">Redirecting to your contacts...</p>
-=======
-              <div class="success-icon">&#10003;</div>
-              <h1>You're in!</h1>
               <p class="subtitle">Redirecting...</p>
->>>>>>> 4e179ec6ac760c7a9df271b71c42e002803a33bd
             </div>
           `;
 
@@ -49,15 +43,9 @@ if (loginForm) {
         } else {
           document.getElementById("login-card").innerHTML = `
             <div class="error-state">
-<<<<<<< HEAD
               <div class="error-icon" aria-hidden="true">&#10005;</div>
               <h2>Login Failed</h2>
-              <p class="subtitle">${result.data.error}</p>
-=======
-              <div class="error-icon">&#10005;</div>
-              <h1>Login Failed</h1>
               <p class="subtitle">${escapeHtml(result.data.error)}</p>
->>>>>>> 4e179ec6ac760c7a9df271b71c42e002803a33bd
               <button onclick="location.reload()" class="button button-primary">Try Again</button>
             </div>
           `;
@@ -101,14 +89,9 @@ if (registerForm) {
             window.location.href = "login.html";
           }, 1000);
         } else {
-<<<<<<< HEAD
-          messageBox.textContent = result.data.error;
-          messageBox.className = "form-message-error";
-=======
           // Validation problems come back per field, e.g. "Password must be at least 8 characters"
           messageBox.textContent = result.data.details ? Object.values(result.data.details).join(" ") : result.data.error;
-          messageBox.style.color = "red";
->>>>>>> 4e179ec6ac760c7a9df271b71c42e002803a33bd
+          messageBox.className = "form-message-error";
         }
       });
   });
